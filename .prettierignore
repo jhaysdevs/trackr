@@ -1,0 +1,18 @@
+# Build outputs
+.next/
+out/
+build/
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Generated files
+src/db/migrations/
+pnpm-lock.yaml
+next-env.d.ts
+*.tsbuildinfo
+
+# Misc
+.env*
+public/
