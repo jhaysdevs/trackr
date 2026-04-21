@@ -24,7 +24,10 @@ export const listsApi = {
 	},
 
 	remove(id: string): Promise<void> {
-		storage.deleteList(id);
+		const ok = storage.deleteList(id);
+		if (!ok) {
+			return Promise.reject(new Error('This list cannot be deleted'));
+		}
 		return Promise.resolve();
 	},
 

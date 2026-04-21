@@ -1,0 +1,43 @@
+@use "../../../styles/variables" as v;
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: v.$z-modal;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: v.$space-4;
+	background: rgba(0, 0, 0, 0.55);
+}
+
+.dialog {
+	width: 100%;
+	max-width: 400px;
+	padding: v.$space-5;
+	background: v.$color-bg-surface;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-lg;
+	box-shadow: v.$shadow-xl;
+}
+
+.title {
+	margin: 0 0 v.$space-2;
+	font-size: v.$font-size-lg;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-primary;
+}
+
+.body {
+	margin: 0 0 v.$space-4;
+	font-size: v.$font-size-sm;
+	color: v.$color-text-secondary;
+	line-height: v.$line-height-relaxed;
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: v.$space-2;
+	flex-wrap: wrap;
+}

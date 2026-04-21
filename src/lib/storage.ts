@@ -4,6 +4,7 @@ import type { CreateProjectInput, UpdateProjectInput } from '@/lib/validations/p
 import type { CreateListInput, UpdateListInput } from '@/lib/validations/list';
 import { createId, slugify } from '@/lib/utils';
 import seedData from '@/data/seed.json';
+import { BACKLOG_LIST_ID } from '@/lib/kanbanLists';
 
 const STORAGE_KEY = 'trackr_v6';
 
@@ -100,15 +101,21 @@ export const storage = {
 
 	deleteList(id: string): boolean {
 		const store = read();
+		if (id === BACKLOG_LIST_ID) return false;
+
 		const remaining = store.lists.filter((l) => l.id !== id);
-		if (remaining.length === 0) return false; // always keep at least one list
-		// Migrate tasks to the lowest-position remaining list
-		const fallback = [...remaining].sort((a, b) => a.position - b.position)[0];
+		if (remaining.length === 0) return false;
+
+		const backlog = store.lists.find((l) => l.id === BACKLOG_LIST_ID);
+		const fallbackId =
+			backlog && remaining.some((l) => l.id === backlog.id)
+				? backlog.id
+				: [...remaining].sort((a, b) => a.position - b.position)[0].id;
+
 		store.tasks = store.tasks.map((t) =>
-			t.listId === id ? { ...t, listId: fallback.id } : t
+			t.listId === id ? { ...t, listId: fallbackId } : t
 		);
 		store.lists = remaining;
-		// Compact positions
 		[...remaining].sort((a, b) => a.position - b.position).forEach((l, i) => {
 			l.position = i;
 		});

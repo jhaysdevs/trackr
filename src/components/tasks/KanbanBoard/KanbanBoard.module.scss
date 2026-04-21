@@ -339,31 +339,6 @@
 	background: color-mix(in srgb, v.$color-accent 6%, v.$color-bg-surface);
 }
 
-// ─── Delete confirmation ───────────────────────────────────────────────────────
-
-.deleteConfirm {
-	padding: v.$space-4;
-	display: flex;
-	flex-direction: column;
-	gap: v.$space-3;
-
-	p {
-		font-size: v.$font-size-sm;
-		color: v.$color-text-primary;
-		margin: 0;
-	}
-}
-
-.deleteNote {
-	font-size: v.$font-size-xs !important;
-	color: v.$color-text-muted !important;
-}
-
-.deleteConfirmActions {
-	display: flex;
-	gap: v.$space-2;
-}
-
 // ─── Add list button ──────────────────────────────────────────────────────────
 
 .addListBtn {

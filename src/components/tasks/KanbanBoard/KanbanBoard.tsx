@@ -20,8 +20,10 @@ import { tasksApi } from '@/lib/api/tasks';
 import { Badge } from '@/components/ui/Badge/Badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal/TaskDetailModal';
 import { NewTaskModal } from '@/components/tasks/NewTaskModal/NewTaskModal';
+import { DeleteListModal } from '@/components/tasks/DeleteListModal/DeleteListModal';
 import { formatDate, cn } from '@/lib/utils';
 import { parseBoardSearchParams, type BoardFiltersFromUrl } from '@/lib/boardSearchParams';
+import { isBacklogList } from '@/lib/kanbanLists';
 import type { List, Task, TaskPriority, TaskStatus, TaskType } from '@/types';
 import styles from './KanbanBoard.module.scss';
 
@@ -223,6 +225,7 @@ function ColumnHeader({
 	onCancelEdit,
 	onDelete,
 	onAddTask,
+	canDeleteList,
 }: {
 	list: List;
 	count: number;
@@ -237,6 +240,7 @@ function ColumnHeader({
 	onCancelEdit: () => void;
 	onDelete: () => void;
 	onAddTask: () => void;
+	canDeleteList: boolean;
 }) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [draft, setDraft] = useState(list.name);
@@ -296,9 +300,11 @@ function ColumnHeader({
 				<button className={styles.iconBtn} title="Add task" onClick={onAddTask}>
 					<Plus size={13} />
 				</button>
-				<button className={cn(styles.iconBtn, styles.deleteBtn)} title="Delete list" onClick={onDelete}>
-					<Trash2 size={13} />
-				</button>
+				{canDeleteList && (
+					<button className={cn(styles.iconBtn, styles.deleteBtn)} title="Delete list" onClick={onDelete}>
+						<Trash2 size={13} />
+					</button>
+				)}
 			</div>
 		</div>
 	);
@@ -357,7 +363,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 
 	// ── Edit / delete state ──
 	const [editingListId, setEditingListId] = useState<string | null>(null);
-	const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+	const [deleteListId, setDeleteListId] = useState<string | null>(null);
 
 	// ── Drag state ──
 	// dragType: 'list' = dragging a column header, 'card' = dragging a kanban task row
@@ -533,20 +539,16 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 		setEditingListId(null);
 	}
 
-	function handleDelete(listId: string) {
-		if (confirmDeleteId !== listId) {
-			setConfirmDeleteId(listId);
-			return;
-		}
-		deleteListMutation.mutate(listId);
-		setConfirmDeleteId(null);
+	function handleRequestDeleteList(listId: string) {
+		if (isBacklogList(listId)) return;
+		setDeleteListId(listId);
 	}
 
 	const isPending = listsLoading || tasksLoading;
 
 	return (
 		<>
-		<div className={styles.root} onClick={() => setConfirmDeleteId(null)}>
+		<div className={styles.root}>
 			{/* Toolbar */}
 			<div className={styles.toolbar}>
 				<MultiSelectFilter
@@ -607,7 +609,6 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 						))
 					: lists.map((list) => {
 							const colTasks = tasksByList(list.id);
-							const isConfirmingDelete = confirmDeleteId === list.id;
 
 							return (
 								<div
@@ -617,77 +618,51 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 										dragOverColumnId === list.id && styles.columnTaskDragOver,
 									)}
 								>
-									{isConfirmingDelete ? (
-										<div className={styles.deleteConfirm} onClick={(e) => e.stopPropagation()}>
-											<p>Delete <strong>{list.name}</strong>?</p>
-											<p className={styles.deleteNote}>
-												{colTasks.length > 0
-													? `${colTasks.length} task${colTasks.length !== 1 ? 's' : ''} will move to the next list.`
-													: 'This list is empty.'}
-											</p>
-											<div className={styles.deleteConfirmActions}>
-												<button
-													className={cn(styles.iconBtn, styles.dangerBtn)}
-													onClick={() => { deleteListMutation.mutate(list.id); setConfirmDeleteId(null); }}
-												>
-													Delete
-												</button>
-												<button
-													className={styles.iconBtn}
-													onClick={() => setConfirmDeleteId(null)}
-												>
-													Cancel
-												</button>
-											</div>
-										</div>
-									) : (
-										<>
-											<ColumnHeader
-												list={list}
-												count={colTasks.length}
-												isEditing={editingListId === list.id}
-												isDragOver={dragOverListId === list.id}
-												onDragStart={(e) => onColumnDragStart(list.id, e)}
-												onDragOver={(e) => onColumnDragOver(list.id, e)}
-												onDrop={(e) => onColumnDrop(list.id, e)}
-												onDragEnd={resetDrag}
-												onStartEdit={() => setEditingListId(list.id)}
-												onFinishEdit={(name) => handleRename(list.id, name)}
-												onCancelEdit={() => setEditingListId(null)}
-												onDelete={() => handleDelete(list.id)}
-												onAddTask={() => setNewTaskModalOpen(true)}
-											/>
-											<div
-												className={styles.columnBody}
-												onDragOver={(e) => onColumnBodyDragOver(list.id, e)}
-												onDrop={(e) => onColumnBodyDrop(list.id, e)}
-											>
-												{colTasks.length === 0 ? (
-													<div className={styles.emptyCol}>No tasks</div>
-												) : (
-													colTasks.map((task) => (
-														<Fragment key={task.id}>
-															{taskDropTarget?.id === task.id && taskDropTarget.before && (
-																<div className={styles.taskDropIndicator} />
-															)}
-															<KanbanTaskCard
-																task={task}
-																listId={list.id}
-																onSelectTask={handleSelectTask}
-																onTaskDragStart={onTaskDragStart}
-																onTaskDragOver={onTaskDragOver}
-																onTaskDrop={onTaskDrop}
-																onTaskDragEnd={resetDrag}
-															/>
-															{taskDropTarget?.id === task.id && !taskDropTarget.before && (
-																<div className={styles.taskDropIndicator} />
-															)}
-														</Fragment>
-													))
-												)}
-											</div>
-										</>
-									)}
+									<ColumnHeader
+										list={list}
+										count={colTasks.length}
+										isEditing={editingListId === list.id}
+										isDragOver={dragOverListId === list.id}
+										onDragStart={(e) => onColumnDragStart(list.id, e)}
+										onDragOver={(e) => onColumnDragOver(list.id, e)}
+										onDrop={(e) => onColumnDrop(list.id, e)}
+										onDragEnd={resetDrag}
+										onStartEdit={() => setEditingListId(list.id)}
+										onFinishEdit={(name) => handleRename(list.id, name)}
+										onCancelEdit={() => setEditingListId(null)}
+										onDelete={() => handleRequestDeleteList(list.id)}
+										onAddTask={() => setNewTaskModalOpen(true)}
+										canDeleteList={!isBacklogList(list.id)}
+									/>
+									<div
+										className={styles.columnBody}
+										onDragOver={(e) => onColumnBodyDragOver(list.id, e)}
+										onDrop={(e) => onColumnBodyDrop(list.id, e)}
+									>
+										{colTasks.length === 0 ? (
+											<div className={styles.emptyCol}>No tasks</div>
+										) : (
+											colTasks.map((task) => (
+												<Fragment key={task.id}>
+													{taskDropTarget?.id === task.id && taskDropTarget.before && (
+														<div className={styles.taskDropIndicator} />
+													)}
+													<KanbanTaskCard
+														task={task}
+														listId={list.id}
+														onSelectTask={handleSelectTask}
+														onTaskDragStart={onTaskDragStart}
+														onTaskDragOver={onTaskDragOver}
+														onTaskDrop={onTaskDrop}
+														onTaskDragEnd={resetDrag}
+													/>
+													{taskDropTarget?.id === task.id && !taskDropTarget.before && (
+														<div className={styles.taskDropIndicator} />
+													)}
+												</Fragment>
+											))
+										)}
+									</div>
 								</div>
 							);
 						})}
@@ -705,6 +680,20 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 			<TaskDetailModal taskId={modalTaskId} onClose={() => setModalTaskId(null)} />
 		)}
 		{newTaskModalOpen && <NewTaskModal onClose={() => setNewTaskModalOpen(false)} />}
+		{deleteListId && (
+			<DeleteListModal
+				listName={lists.find((l) => l.id === deleteListId)?.name ?? 'List'}
+				taskCount={tasks.filter((t) => t.listId === deleteListId).length}
+				isPending={deleteListMutation.isPending}
+				onCancel={() => setDeleteListId(null)}
+				onConfirm={() => {
+					const id = deleteListId;
+					deleteListMutation.mutate(id, {
+						onSettled: () => setDeleteListId(null),
+					});
+				}}
+			/>
+		)}
 		</>
 	);
 }
