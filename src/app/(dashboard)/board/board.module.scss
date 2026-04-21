@@ -1,0 +1,9 @@
+// The board needs to fill all remaining height so columns can scroll vertically.
+// AppShell > .main is a flex column; this div takes the leftover space.
+.boardWrap {
+	flex: 1;
+	min-height: 0;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}

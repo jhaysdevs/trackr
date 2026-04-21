@@ -32,6 +32,15 @@ export type ProjectStatus = 'active' | 'archived' | 'paused';
 
 // ─── Domain Models ───────────────────────────────────────────────────────────
 
+export interface List {
+	id: string;
+	name: string;
+	color: string;
+	position: number;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
 export interface User {
 	id: string;
 	name: string | null;
@@ -71,6 +80,8 @@ export interface Task {
 	type: TaskType;
 	projectId: string;
 	project?: Project;
+	listId?: string | null;
+	position?: number | null;
 	reporterId: string;
 	reporter?: User;
 	assigneeId: string | null;

@@ -35,6 +35,8 @@ export const createTaskSchema = z.object({
 		])
 		.default('feature'),
 	projectId: z.string().optional(),
+	listId: z.string().optional().nullable(),
+	position: z.number().int().min(0).optional().nullable(),
 	assigneeId: z.string().optional().nullable(),
 	labelIds: z.array(z.string()).default([]),
 	parentId: z.string().optional().nullable(),

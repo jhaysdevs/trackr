@@ -1,12 +1,14 @@
-import type { Task, Project, PaginatedResponse, TaskFilters } from '@/types';
+import type { Task, Project, List, PaginatedResponse, TaskFilters } from '@/types';
 import type { CreateTaskInput, UpdateTaskInput } from '@/lib/validations/task';
 import type { CreateProjectInput, UpdateProjectInput } from '@/lib/validations/project';
+import type { CreateListInput, UpdateListInput } from '@/lib/validations/list';
 import { createId, slugify } from '@/lib/utils';
 import seedData from '@/data/seed.json';
 
-const STORAGE_KEY = 'trackr_v4';
+const STORAGE_KEY = 'trackr_v6';
 
 interface Store {
+	lists: List[];
 	tasks: Task[];
 	projects: Project[];
 	nextTaskNumber: number;
@@ -15,6 +17,7 @@ interface Store {
 function read(): Store {
 	if (typeof window === 'undefined') {
 		return {
+			lists: seedData.lists as unknown as List[],
 			tasks: seedData.tasks as unknown as Task[],
 			projects: seedData.projects as unknown as Project[],
 			nextTaskNumber: seedData.tasks.length + 1,
@@ -29,6 +32,7 @@ function read(): Store {
 		}
 	}
 	const store: Store = {
+		lists: seedData.lists as unknown as List[],
 		tasks: seedData.tasks as unknown as Task[],
 		projects: seedData.projects as unknown as Project[],
 		nextTaskNumber: seedData.tasks.length + 1,
@@ -52,6 +56,76 @@ const SORT_PRIORITY: Record<string, number> = {
 };
 
 export const storage = {
+	// ─── Lists ────────────────────────────────────────────────────────────────
+
+	listLists(): List[] {
+		return [...read().lists].sort((a, b) => a.position - b.position);
+	},
+
+	getList(id: string): List | null {
+		return read().lists.find((l) => l.id === id) ?? null;
+	},
+
+	createList(input: CreateListInput): List {
+		const store = read();
+		const now = new Date().toISOString();
+		const maxPos = store.lists.reduce((m, l) => Math.max(m, l.position), -1);
+		const list: List = {
+			id: createId(),
+			name: input.name,
+			color: input.color ?? '#4b5563',
+			position: input.position ?? maxPos + 1,
+			createdAt: now as unknown as Date,
+			updatedAt: now as unknown as Date,
+		};
+		store.lists.push(list);
+		write(store);
+		return list;
+	},
+
+	updateList(id: string, input: UpdateListInput): List | null {
+		const store = read();
+		const idx = store.lists.findIndex((l) => l.id === id);
+		if (idx === -1) return null;
+		const now = new Date().toISOString();
+		store.lists[idx] = {
+			...store.lists[idx],
+			...(input.name !== undefined && { name: input.name }),
+			...(input.color !== undefined && { color: input.color }),
+			...(input.position !== undefined && { position: input.position }),
+			updatedAt: now as unknown as Date,
+		};
+		write(store);
+		return store.lists[idx];
+	},
+
+	deleteList(id: string): boolean {
+		const store = read();
+		const remaining = store.lists.filter((l) => l.id !== id);
+		if (remaining.length === 0) return false; // always keep at least one list
+		// Migrate tasks to the lowest-position remaining list
+		const fallback = [...remaining].sort((a, b) => a.position - b.position)[0];
+		store.tasks = store.tasks.map((t) =>
+			t.listId === id ? { ...t, listId: fallback.id } : t
+		);
+		store.lists = remaining;
+		// Compact positions
+		[...remaining].sort((a, b) => a.position - b.position).forEach((l, i) => {
+			l.position = i;
+		});
+		write(store);
+		return true;
+	},
+
+	reorderLists(orderedIds: string[]): void {
+		const store = read();
+		orderedIds.forEach((id, idx) => {
+			const list = store.lists.find((l) => l.id === id);
+			if (list) list.position = idx;
+		});
+		write(store);
+	},
+
 	// ─── Projects ─────────────────────────────────────────────────────────────
 
 	listProjects(): PaginatedResponse<Project> {
@@ -164,6 +238,10 @@ export const storage = {
 	createTask(input: CreateTaskInput): Task {
 		const store = read();
 		const now = new Date().toISOString();
+		const listId = input.listId ?? null;
+		const maxPos = store.tasks
+			.filter((t) => t.listId === listId)
+			.reduce((m, t) => Math.max(m, (t.position as unknown as number) ?? -1), -1);
 		const task: Task = {
 			id: createId(),
 			number: store.nextTaskNumber++,
@@ -171,8 +249,10 @@ export const storage = {
 			description: input.description ?? null,
 			status: input.status ?? 'backlog',
 			priority: input.priority ?? 'medium',
-			type: input.type ?? 'task',
+			type: input.type ?? 'feature',
 			projectId: input.projectId ?? '',
+			listId,
+			position: maxPos + 1,
 			reporterId: 'admin',
 			assigneeId: input.assigneeId ?? null,
 			parentId: input.parentId ?? null,
@@ -198,6 +278,8 @@ export const storage = {
 			...(input.priority !== undefined && { priority: input.priority }),
 			...(input.type !== undefined && { type: input.type }),
 			...(input.projectId !== undefined && { projectId: input.projectId }),
+			...(input.listId !== undefined && { listId: input.listId }),
+			...(input.position !== undefined && { position: input.position ?? null }),
 			...(input.assigneeId !== undefined && { assigneeId: input.assigneeId ?? null }),
 			...(input.parentId !== undefined && { parentId: input.parentId ?? null }),
 			...(input.dueDate !== undefined && {
@@ -215,6 +297,26 @@ export const storage = {
 		store.tasks = store.tasks.filter((i) => i.id !== id);
 		write(store);
 		return store.tasks.length < before;
+	},
+
+	reorderTasksInList(listId: string, orderedIds: string[]): void {
+		const store = read();
+		orderedIds.forEach((id, idx) => {
+			const task = store.tasks.find((t) => t.id === id);
+			if (task) task.position = idx as unknown as null;
+		});
+		write(store);
+	},
+
+	moveAndReorder(taskId: string, targetListId: string, orderedIds: string[]): void {
+		const store = read();
+		const task = store.tasks.find((t) => t.id === taskId);
+		if (task) task.listId = targetListId;
+		orderedIds.forEach((id, idx) => {
+			const t = store.tasks.find((t) => t.id === id);
+			if (t) t.position = idx as unknown as null;
+		});
+		write(store);
 	},
 
 	resetToSeed(): void {

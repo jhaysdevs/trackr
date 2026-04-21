@@ -27,4 +27,14 @@ export const tasksApi = {
 		storage.deleteTask(id);
 		return Promise.resolve();
 	},
+
+	reorderInList(listId: string, orderedIds: string[]): Promise<void> {
+		storage.reorderTasksInList(listId, orderedIds);
+		return Promise.resolve();
+	},
+
+	moveAndReorder(taskId: string, targetListId: string, orderedIds: string[]): Promise<void> {
+		storage.moveAndReorder(taskId, targetListId, orderedIds);
+		return Promise.resolve();
+	},
 };
