@@ -37,6 +37,8 @@ export interface List {
 	name: string;
 	color: string;
 	position: number;
+	/** When set, column shows count vs limit (e.g. Kanban WIP cap). */
+	wipLimit?: number | null;
 	createdAt: Date;
 	updatedAt: Date;
 }

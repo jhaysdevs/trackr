@@ -256,6 +256,12 @@
 	font-variant-numeric: tabular-nums;
 }
 
+.columnCountOverWip {
+	color: v.$color-warning;
+	border-color: color-mix(in srgb, v.$color-warning 40%, v.$color-border);
+	background: color-mix(in srgb, v.$color-warning 12%, v.$color-bg-overlay);
+}
+
 .gripIcon {
 	color: v.$color-text-muted;
 	opacity: 0.4;

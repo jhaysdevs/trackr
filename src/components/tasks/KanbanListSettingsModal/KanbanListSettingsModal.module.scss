@@ -1,0 +1,185 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: v.$z-modal;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: v.$space-4;
+	background: rgba(0, 0, 0, 0.55);
+}
+
+.dialog {
+	width: 100%;
+	max-width: 420px;
+	max-height: min(90vh, 640px);
+	display: flex;
+	flex-direction: column;
+	background: v.$color-bg-surface;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-lg;
+	box-shadow: v.$shadow-xl;
+	overflow: hidden;
+}
+
+.header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: v.$space-3;
+	padding: v.$space-4 v.$space-4 v.$space-2;
+	border-bottom: 1px solid v.$color-border;
+	flex-shrink: 0;
+}
+
+.title {
+	margin: 0;
+	font-size: v.$font-size-lg;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-primary;
+}
+
+.subtitle {
+	margin: v.$space-1 0 0;
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+	font-family: v.$font-mono;
+}
+
+.body {
+	padding: v.$space-4;
+	overflow-y: auto;
+	@include m.scrollbar-thin;
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-4;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-2;
+}
+
+.label {
+	font-size: v.$font-size-xs;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-secondary;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.textInput {
+	background: v.$color-bg-overlay;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	color: v.$color-text-primary;
+	font-size: v.$font-size-sm;
+	padding: v.$space-2 v.$space-3;
+	outline: none;
+
+	&:focus {
+		border-color: v.$color-border-focus;
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
+}
+
+.hint {
+	margin: 0;
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+	line-height: v.$line-height-normal;
+}
+
+.hintMono {
+	font-family: v.$font-mono;
+	font-size: 0.7rem;
+	color: v.$color-text-secondary;
+}
+
+.colorRow {
+	display: flex;
+	align-items: center;
+	gap: v.$space-3;
+	flex-wrap: wrap;
+}
+
+.presets {
+	display: flex;
+	flex-wrap: wrap;
+	gap: v.$space-2;
+}
+
+.presetBtn {
+	width: 28px;
+	height: 28px;
+	border-radius: v.$radius-full;
+	border: 2px solid transparent;
+	cursor: pointer;
+	padding: 0;
+	transition: transform v.$transition-fast, border-color v.$transition-base;
+
+	&:hover {
+		transform: scale(1.08);
+	}
+
+}
+
+.presetBtnActive {
+	border-color: v.$color-text-primary;
+	box-shadow: 0 0 0 2px color-mix(in srgb, v.$color-text-primary 25%, transparent);
+}
+
+.colorNative {
+	width: 40px;
+	height: 36px;
+	padding: 0;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	cursor: pointer;
+	background: v.$color-bg-raised;
+
+	&::-webkit-color-swatch-wrapper {
+		padding: 2px;
+	}
+
+	&::-webkit-color-swatch {
+		border-radius: v.$radius-sm;
+		border: none;
+	}
+}
+
+.wipRow {
+	display: flex;
+	align-items: center;
+	gap: v.$space-2;
+}
+
+.wipInput {
+	width: 5rem;
+	background: v.$color-bg-overlay;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	color: v.$color-text-primary;
+	font-size: v.$font-size-sm;
+	padding: v.$space-2 v.$space-3;
+	outline: none;
+	font-variant-numeric: tabular-nums;
+
+	&:focus {
+		border-color: v.$color-border-focus;
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
+}
+
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: v.$space-2;
+	padding: v.$space-3 v.$space-4;
+	border-top: 1px solid v.$color-border;
+	flex-shrink: 0;
+}

@@ -11,6 +11,7 @@ import {
 	type DragEvent,
 } from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { GearIcon } from '@/components/ui/GearIcon/GearIcon';
 import { useSearchParams } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLists, useCreateList, useUpdateList, useDeleteList, useReorderLists } from '@/hooks/useLists';
@@ -21,6 +22,7 @@ import { Badge } from '@/components/ui/Badge/Badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal/TaskDetailModal';
 import { NewTaskModal } from '@/components/tasks/NewTaskModal/NewTaskModal';
 import { DeleteListModal } from '@/components/tasks/DeleteListModal/DeleteListModal';
+import { KanbanListSettingsModal } from '@/components/tasks/KanbanListSettingsModal/KanbanListSettingsModal';
 import { formatDate, cn } from '@/lib/utils';
 import { parseBoardSearchParams, type BoardFiltersFromUrl } from '@/lib/boardSearchParams';
 import { isBacklogList } from '@/lib/kanbanLists';
@@ -225,6 +227,7 @@ function ColumnHeader({
 	onCancelEdit,
 	onDelete,
 	onAddTask,
+	onOpenSettings,
 	canDeleteList,
 }: {
 	list: List;
@@ -240,6 +243,7 @@ function ColumnHeader({
 	onCancelEdit: () => void;
 	onDelete: () => void;
 	onAddTask: () => void;
+	onOpenSettings: () => void;
 	canDeleteList: boolean;
 }) {
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -292,15 +296,58 @@ function ColumnHeader({
 						{list.name}
 					</span>
 				)}
-				<span className={styles.columnCount}>{count}</span>
+				<span
+					className={cn(
+						styles.columnCount,
+						list.wipLimit != null &&
+							typeof list.wipLimit === 'number' &&
+							count > list.wipLimit &&
+							styles.columnCountOverWip,
+					)}
+					title={
+						list.wipLimit != null ? `${count} tasks · WIP limit ${list.wipLimit}` : `${count} tasks`
+					}
+				>
+					{list.wipLimit != null && typeof list.wipLimit === 'number' ? `${count}/${list.wipLimit}` : count}
+				</span>
 			</div>
 
 			<div className={styles.columnActions}>
-				<button className={styles.iconBtn} title="Add task" onClick={onAddTask}>
+				<button
+					type="button"
+					className={styles.iconBtn}
+					title="List settings"
+					onClick={(e) => {
+						e.stopPropagation();
+						onOpenSettings();
+					}}
+					onPointerDown={(e) => e.stopPropagation()}
+				>
+					<GearIcon size={14} />
+				</button>
+				<button
+					type="button"
+					className={styles.iconBtn}
+					title="Add task"
+					onClick={(e) => {
+						e.stopPropagation();
+						onAddTask();
+					}}
+					onPointerDown={(e) => e.stopPropagation()}
+				>
 					<Plus size={13} />
 				</button>
 				{canDeleteList && (
-					<button className={cn(styles.iconBtn, styles.deleteBtn)} title="Delete list" onClick={onDelete}>
+					<button
+						type="button"
+						className={cn(styles.iconBtn, styles.deleteBtn)}
+						title="Delete list"
+						onClick={(e) => {
+							e.stopPropagation();
+							onDelete();
+						}}
+						onPointerDown={(e) => e.stopPropagation()}
+					>
 						<Trash2 size={13} />
 					</button>
 				)}
@@ -363,6 +410,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 	// ── Edit / delete state ──
 	const [editingListId, setEditingListId] = useState<string | null>(null);
 	const [deleteListId, setDeleteListId] = useState<string | null>(null);
+	const [listSettingsListId, setListSettingsListId] = useState<string | null>(null);
 
 	// ── Drag state ──
 	// dragType: 'list' = dragging a column header, 'card' = dragging a kanban task row
@@ -545,6 +593,10 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 
 	const isPending = listsLoading || tasksLoading;
 
+	const listOpenInSettings = listSettingsListId
+		? lists.find((l) => l.id === listSettingsListId)
+		: undefined;
+
 	return (
 		<>
 		<div className={styles.root}>
@@ -632,6 +684,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 										onCancelEdit={() => setEditingListId(null)}
 										onDelete={() => handleRequestDeleteList(list.id)}
 										onAddTask={() => setNewTaskModalOpen(true)}
+										onOpenSettings={() => setListSettingsListId(list.id)}
 										canDeleteList={!isBacklogList(list.id)}
 									/>
 									<div
@@ -680,6 +733,9 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 			<TaskDetailModal taskId={modalTaskId} onClose={() => setModalTaskId(null)} />
 		)}
 		{newTaskModalOpen && <NewTaskModal onClose={() => setNewTaskModalOpen(false)} />}
+		{listOpenInSettings && (
+			<KanbanListSettingsModal list={listOpenInSettings} onClose={() => setListSettingsListId(null)} />
+		)}
 		{deleteListId && (
 			<DeleteListModal
 				listName={lists.find((l) => l.id === deleteListId)?.name ?? 'List'}

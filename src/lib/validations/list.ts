@@ -7,6 +7,7 @@ export const createListSchema = z.object({
 		.regex(/^#[0-9a-f]{6}$/i)
 		.default('#4b5563'),
 	position: z.number().int().min(0).optional(),
+	wipLimit: z.union([z.number().int().min(0).max(999), z.null()]).optional(),
 });
 
 export const updateListSchema = createListSchema.partial();

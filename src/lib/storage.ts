@@ -75,6 +75,7 @@ export const storage = {
 			name: input.name,
 			color: input.color ?? '#4b5563',
 			position: input.position ?? maxPos + 1,
+			...(input.wipLimit !== undefined && { wipLimit: input.wipLimit }),
 			createdAt: now as unknown as Date,
 			updatedAt: now as unknown as Date,
 		};
@@ -93,6 +94,7 @@ export const storage = {
 			...(input.name !== undefined && { name: input.name }),
 			...(input.color !== undefined && { color: input.color }),
 			...(input.position !== undefined && { position: input.position }),
+			...(input.wipLimit !== undefined && { wipLimit: input.wipLimit }),
 			updatedAt: now as unknown as Date,
 		};
 		write(store);
