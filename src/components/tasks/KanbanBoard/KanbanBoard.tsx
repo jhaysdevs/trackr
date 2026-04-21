@@ -5,6 +5,7 @@ import {
 	useRef,
 	useEffect,
 	useCallback,
+	useMemo,
 	Fragment,
 	type KeyboardEvent,
 	type DragEvent,
@@ -19,7 +20,7 @@ import { useProjects } from '@/hooks/useProjects';
 import { tasksApi } from '@/lib/api/tasks';
 import { Badge } from '@/components/ui/Badge/Badge';
 import { formatDate, cn } from '@/lib/utils';
-import type { List, Task } from '@/types';
+import type { List, Task, TaskPriority, TaskType } from '@/types';
 import styles from './KanbanBoard.module.scss';
 
 // ─── Color palette for new lists ─────────────────────────────────────────────
@@ -29,6 +30,82 @@ const PALETTE = [
 	'#06b6d4', '#ef4444', '#22c55e', '#ec4899',
 	'#f97316', '#14b8a6', '#a855f7', '#0ea5e9',
 ];
+
+const PRIORITY_OPTIONS: Array<{ value: TaskPriority; label: string }> = [
+	{ value: 'critical', label: 'Critical' },
+	{ value: 'high', label: 'High' },
+	{ value: 'medium', label: 'Medium' },
+	{ value: 'low', label: 'Low' },
+	{ value: 'trivial', label: 'Trivial' },
+];
+
+const TYPE_OPTIONS: Array<{ value: TaskType; label: string }> = [
+	{ value: 'bug', label: 'Bug' },
+	{ value: 'feature', label: 'Feature' },
+	{ value: 'enhancement', label: 'Enhancement' },
+	{ value: 'refactor', label: 'Refactor' },
+	{ value: 'tech_debt', label: 'Tech Debt' },
+	{ value: 'documentation', label: 'Docs' },
+	{ value: 'ui_ux', label: 'UI / UX' },
+	{ value: 'performance', label: 'Performance' },
+	{ value: 'security', label: 'Security' },
+	{ value: 'devops', label: 'DevOps' },
+	{ value: 'testing', label: 'Testing' },
+	{ value: 'spike', label: 'Spike' },
+	{ value: 'integration', label: 'Integration' },
+	{ value: 'accessibility', label: 'A11y' },
+];
+
+function MultiSelectFilter<T extends string>({
+	label,
+	options,
+	selectedValues,
+	onToggle,
+	onClear,
+}: {
+	label: string;
+	options: Array<{ value: T; label: string }>;
+	selectedValues: T[];
+	onToggle: (value: T) => void;
+	onClear: () => void;
+}) {
+	const buttonLabel = selectedValues.length === 0 ? label : `${label} (${selectedValues.length})`;
+
+	return (
+		<details className={styles.filterDropdown}>
+			<summary className={styles.filterButton}>{buttonLabel}</summary>
+			<div className={styles.filterMenu}>
+				<div className={styles.filterMenuHeader}>
+					<span className={styles.filterMenuTitle}>{label}</span>
+					{selectedValues.length > 0 && (
+						<button
+							type="button"
+							className={styles.clearBtn}
+							onClick={(e) => {
+								e.preventDefault();
+								onClear();
+							}}
+						>
+							Clear
+						</button>
+					)}
+				</div>
+				<div className={styles.filterOptions}>
+					{options.map((option) => (
+						<label key={option.value} className={styles.filterOption}>
+							<input
+								type="checkbox"
+								checked={selectedValues.includes(option.value)}
+								onChange={() => onToggle(option.value)}
+							/>
+							<span>{option.label}</span>
+						</label>
+					))}
+				</div>
+			</div>
+		</details>
+	);
+}
 
 // ─── Board card ───────────────────────────────────────────────────────────────
 
@@ -191,14 +268,29 @@ export function KanbanBoard() {
 	const qc = useQueryClient();
 
 	// ── Data ──
-	const [projectId, setProjectId] = useState('');
+	const [projectFilters, setProjectFilters] = useState<string[]>([]);
+	const [priorityFilters, setPriorityFilters] = useState<TaskPriority[]>([]);
+	const [typeFilters, setTypeFilters] = useState<TaskType[]>([]);
 	const { data: rawLists = [], isPending: listsLoading } = useLists();
-	const { data: tasksData, isPending: tasksLoading } = useTasks({ pageSize: 10_000, projectId: projectId || undefined });
+	const { data: tasksData, isPending: tasksLoading } = useTasks({ pageSize: 10_000 });
 	const { data: projectsData } = useProjects();
 
 	const lists = [...rawLists].sort((a, b) => a.position - b.position);
 	const tasks = tasksData?.data ?? [];
 	const projects = projectsData?.data ?? [];
+	const projectOptions = useMemo(() => {
+		return projects.map((project) => ({ value: project.id, label: project.name }));
+	}, [projects]);
+	const filteredTasks = useMemo(() => {
+		return tasks.filter((task) => {
+			const matchesProject =
+				projectFilters.length === 0 || projectFilters.includes(task.projectId);
+			const matchesPriority =
+				priorityFilters.length === 0 || priorityFilters.includes(task.priority);
+			const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
+			return matchesProject && matchesPriority && matchesType;
+		});
+	}, [tasks, projectFilters, priorityFilters, typeFilters]);
 
 	// ── Mutations ──
 	const createListMutation = useCreateList();
@@ -236,10 +328,10 @@ export function KanbanBoard() {
 	// ── Helpers ──
 	const tasksByList = useCallback(
 		(listId: string) => {
-			const filtered = tasks.filter((t) => t.listId === listId);
+			const filtered = filteredTasks.filter((t) => t.listId === listId);
 			return filtered.sort((a, b) => ((a.position as unknown as number) ?? Infinity) - ((b.position as unknown as number) ?? Infinity));
 		},
-		[tasks]
+		[filteredTasks]
 	);
 
 	function setCardIndicator(val: { id: string; before: boolean } | null) {
@@ -397,17 +489,40 @@ export function KanbanBoard() {
 		<div className={styles.root} onClick={() => setConfirmDeleteId(null)}>
 			{/* Toolbar */}
 			<div className={styles.toolbar}>
-				<select
-					className={styles.projectFilter}
-					value={projectId}
-					onChange={(e) => setProjectId(e.target.value)}
-				>
-					<option value="">All projects</option>
-					{projects.map((p) => (
-						<option key={p.id} value={p.id}>{p.name}</option>
-					))}
-				</select>
-				<span className={styles.taskTotal}>{tasks.length} tasks</span>
+				<MultiSelectFilter
+					label="Projects"
+					options={projectOptions}
+					selectedValues={projectFilters}
+					onToggle={(value) => {
+						setProjectFilters((prev) =>
+							prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+						);
+					}}
+					onClear={() => setProjectFilters([])}
+				/>
+				<MultiSelectFilter
+					label="Priority"
+					options={PRIORITY_OPTIONS}
+					selectedValues={priorityFilters}
+					onToggle={(value) => {
+						setPriorityFilters((prev) =>
+							prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+						);
+					}}
+					onClear={() => setPriorityFilters([])}
+				/>
+				<MultiSelectFilter
+					label="Type"
+					options={TYPE_OPTIONS}
+					selectedValues={typeFilters}
+					onToggle={(value) => {
+						setTypeFilters((prev) =>
+							prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+						);
+					}}
+					onClear={() => setTypeFilters([])}
+				/>
+				<span className={styles.taskTotal}>{filteredTasks.length} tasks</span>
 			</div>
 
 			{/* Board */}

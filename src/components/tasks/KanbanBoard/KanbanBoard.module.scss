@@ -53,6 +53,120 @@
 	}
 }
 
+.filterDropdown {
+	position: relative;
+}
+
+.filterButton {
+	list-style: none;
+	height: 32px;
+	display: inline-flex;
+	align-items: center;
+	padding: 0 v.$space-3;
+	background: v.$color-bg-raised;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	color: v.$color-text-primary;
+	font-size: v.$font-size-sm;
+	cursor: pointer;
+	user-select: none;
+	white-space: nowrap;
+
+	&::-webkit-details-marker {
+		display: none;
+	}
+
+	&::after {
+		content: "";
+		width: 5px;
+		height: 5px;
+		margin-left: v.$space-2;
+		border-right: 1.5px solid v.$color-text-secondary;
+		border-bottom: 1.5px solid v.$color-text-secondary;
+		transform: rotate(45deg) translateY(-1px);
+		transition: transform v.$transition-base;
+	}
+}
+
+.filterDropdown[open] .filterButton {
+	border-color: v.$color-border-focus;
+	box-shadow: 0 0 0 2px v.$color-accent-muted;
+
+	&::after {
+		transform: rotate(-135deg) translateY(-1px);
+	}
+}
+
+.filterMenu {
+	position: absolute;
+	top: calc(100% + v.$space-2);
+	left: 0;
+	width: 210px;
+	max-height: 280px;
+	background: v.$color-bg-overlay;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-md;
+	box-shadow: v.$shadow-base;
+	padding: v.$space-2;
+	z-index: v.$z-dropdown;
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-2;
+}
+
+.filterMenuHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: v.$space-1 v.$space-1 0;
+}
+
+.filterMenuTitle {
+	font-size: v.$font-size-xs;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-secondary;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.clearBtn {
+	font-size: v.$font-size-xs;
+	color: v.$color-accent;
+
+	&:hover {
+		color: v.$color-accent-hover;
+	}
+}
+
+.filterOptions {
+	max-height: 220px;
+	overflow-y: auto;
+	padding-right: v.$space-1;
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-1;
+	@include m.scrollbar-thin;
+}
+
+.filterOption {
+	display: flex;
+	align-items: center;
+	gap: v.$space-2;
+	padding: v.$space-1 v.$space-2;
+	border-radius: v.$radius-sm;
+	font-size: v.$font-size-sm;
+	color: v.$color-text-primary;
+	cursor: pointer;
+
+	&:hover {
+		background: v.$color-bg-hover;
+	}
+
+	input {
+		accent-color: v.$color-accent;
+	}
+}
+
 .taskTotal {
 	font-size: v.$font-size-xs;
 	color: v.$color-text-muted;
