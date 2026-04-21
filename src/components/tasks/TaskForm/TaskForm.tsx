@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -10,8 +10,14 @@ import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Badge } from '@/components/ui/Badge/Badge';
 import { RichTextEditor } from '@/components/ui/RichTextEditor/RichTextEditor';
-import { useTask, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
+import { useTask, useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useProjects } from '@/hooks/useProjects';
+import {
+	buildDefaultTaskDescriptionHtml,
+	isHtmlDescriptionEmpty,
+	pickRelatedTaskTitles,
+} from '@/lib/taskDescriptionTemplates';
 import type { Task, TaskStatus, TaskPriority, TaskType } from '@/types';
 import styles from './TaskForm.module.scss';
 
@@ -119,8 +125,10 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 	const [saved, setSaved] = useState(false);
 
 	const { data: task, isPending: taskLoading } = useTask(taskId ?? '');
+	const { data: tasksPool } = useTasks({ pageSize: 500 });
 	const { data: projectsData } = useProjects();
 	const projects = projectsData?.data ?? [];
+	const autoDescriptionRef = useRef<string | null>(null);
 
 	const createMutation = useCreateTask();
 	const updateMutation = useUpdateTask(taskId ?? '');
@@ -130,7 +138,12 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			title: '',
-			description: '',
+			description: buildDefaultTaskDescriptionHtml({
+				title: '',
+				type: 'feature',
+				projectName: undefined,
+				relatedTitles: [],
+			}),
 			status: 'backlog',
 			priority: 'medium',
 			type: 'feature',
@@ -154,8 +167,31 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 	}, [task, form]);
 
 	const watchedProjectId = form.watch('projectId');
+	const watchedTitle = form.watch('title');
+	const watchedType = form.watch('type');
+	const debouncedTitle = useDebouncedValue(watchedTitle ?? '', 380);
 	const watchedDescription = form.watch('description') ?? '';
 	const project = projects.find((p) => p.id === watchedProjectId);
+
+	useEffect(() => {
+		if (isEdit) return;
+		const type = (watchedType ?? 'feature') as TaskType;
+		const projectName = projects.find((p) => p.id === watchedProjectId)?.name;
+		const related = pickRelatedTaskTitles(tasksPool?.data ?? [], type, debouncedTitle, 3);
+		const next = buildDefaultTaskDescriptionHtml({
+			title: debouncedTitle,
+			type,
+			projectName,
+			relatedTitles: related,
+		});
+		const current = form.getValues('description') ?? '';
+		const prevAuto = autoDescriptionRef.current;
+		if (prevAuto === null || current === prevAuto || isHtmlDescriptionEmpty(current)) {
+			form.setValue('description', next, { shouldDirty: false, shouldValidate: true });
+			autoDescriptionRef.current = next;
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- template sync; form.getValues/setValue are stable
+	}, [isEdit, debouncedTitle, watchedType, watchedProjectId, projects, tasksPool?.data]);
 
 	async function onSubmit(data: FormValues) {
 		setSaved(false);
