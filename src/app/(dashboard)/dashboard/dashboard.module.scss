@@ -1,0 +1,140 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.page {
+	flex: 1;
+	overflow-y: auto;
+	padding: v.$space-6;
+	@include m.scrollbar-thin;
+}
+
+.inner {
+	max-width: v.$content-max-width;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-6;
+}
+
+// ─── Demo banner ─────────────────────────────────────────────────────────────
+.demoBanner {
+	@include m.flex-start;
+	gap: v.$space-2;
+	padding: v.$space-3 v.$space-4;
+	background: rgba(88, 101, 242, 0.08);
+	border: 1px solid rgba(88, 101, 242, 0.2);
+	border-radius: v.$radius-base;
+	font-size: v.$font-size-xs;
+	color: v.$color-text-secondary;
+
+	strong {
+		color: v.$color-accent;
+		font-weight: v.$font-weight-medium;
+	}
+}
+
+// ─── Summary row ─────────────────────────────────────────────────────────────
+.statGrid {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: v.$space-4;
+
+	@include m.respond-to("md") {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+
+.statCard {
+	@include m.surface(1);
+	padding: v.$space-4 v.$space-5;
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-1;
+	transition: border-color v.$transition-base;
+
+	&:hover {
+		border-color: v.$color-border-focus;
+	}
+}
+
+.statLabel {
+	font-size: v.$font-size-xs;
+	font-weight: v.$font-weight-medium;
+	color: v.$color-text-muted;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.statValue {
+	font-size: v.$font-size-3xl;
+	font-weight: v.$font-weight-bold;
+	color: v.$color-text-primary;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+}
+
+.statSub {
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+	margin-top: v.$space-1;
+}
+
+.statAccent-blue {
+	border-top: 2px solid v.$color-status-open;
+}
+.statAccent-amber {
+	border-top: 2px solid v.$color-status-in-progress;
+}
+.statAccent-red {
+	border-top: 2px solid v.$color-priority-critical;
+}
+.statAccent-green {
+	border-top: 2px solid v.$color-status-done;
+}
+
+// ─── Chart grid ──────────────────────────────────────────────────────────────
+.chartRow {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: v.$space-4;
+
+	@include m.respond-to("lg") {
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+.chartCard {
+	@include m.surface(1);
+	padding: v.$space-5;
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-4;
+	min-height: 320px;
+}
+
+.chartCardFull {
+	@include m.surface(1);
+	padding: v.$space-5;
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-4;
+}
+
+.chartTitle {
+	font-size: v.$font-size-sm;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-primary;
+	line-height: 1;
+}
+
+.chartSubtitle {
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+	margin-top: 2px;
+}
+
+.chartHeader {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}

@@ -1,0 +1,109 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-4;
+	height: 100%;
+}
+
+.chartRow {
+	display: flex;
+	align-items: center;
+	gap: v.$space-6;
+	flex: 1;
+	min-height: 0;
+}
+
+.svgWrap {
+	flex-shrink: 0;
+	width: 220px;
+	height: 220px;
+
+	svg {
+		width: 100%;
+		height: 100%;
+		overflow: visible;
+	}
+}
+
+.legend {
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-2;
+	flex: 1;
+	min-width: 0;
+}
+
+.legendItem {
+	@include m.flex-between;
+	gap: v.$space-2;
+	padding: v.$space-1 v.$space-2;
+	border-radius: v.$radius-sm;
+	transition: background v.$transition-fast;
+	cursor: default;
+
+	&:hover {
+		background: v.$color-bg-overlay;
+	}
+}
+
+.legendLeft {
+	@include m.flex-start;
+	gap: v.$space-2;
+	min-width: 0;
+}
+
+.dot {
+	width: 8px;
+	height: 8px;
+	border-radius: v.$radius-full;
+	flex-shrink: 0;
+}
+
+.label {
+	font-size: v.$font-size-xs;
+	color: v.$color-text-secondary;
+	@include m.text-truncate;
+}
+
+.count {
+	font-size: v.$font-size-xs;
+	font-weight: v.$font-weight-medium;
+	color: v.$color-text-primary;
+	font-variant-numeric: tabular-nums;
+	flex-shrink: 0;
+}
+
+.tooltip {
+	position: fixed;
+	background: v.$color-bg-overlay;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	padding: v.$space-2 v.$space-3;
+	pointer-events: none;
+	z-index: v.$z-tooltip;
+	font-size: v.$font-size-xs;
+	color: v.$color-text-primary;
+	box-shadow: v.$shadow-lg;
+	white-space: nowrap;
+	transform: translate(-50%, -120%);
+
+	strong {
+		display: block;
+		font-weight: v.$font-weight-semibold;
+		margin-bottom: 2px;
+	}
+
+	span {
+		color: v.$color-text-muted;
+	}
+}
+
+.empty {
+	@include m.flex-center;
+	flex: 1;
+	font-size: v.$font-size-sm;
+	color: v.$color-text-muted;
+}

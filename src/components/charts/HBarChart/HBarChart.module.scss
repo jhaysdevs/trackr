@@ -1,0 +1,51 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.chart {
+	flex: 1;
+	overflow: hidden;
+
+	svg {
+		display: block;
+		width: 100%;
+		overflow: visible;
+	}
+}
+
+.empty {
+	@include m.flex-center;
+	flex: 1;
+	font-size: v.$font-size-sm;
+	color: v.$color-text-muted;
+}
+
+.tooltip {
+	position: fixed;
+	background: v.$color-bg-overlay;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	padding: v.$space-2 v.$space-3;
+	pointer-events: none;
+	z-index: v.$z-tooltip;
+	font-size: v.$font-size-xs;
+	color: v.$color-text-primary;
+	box-shadow: v.$shadow-lg;
+	white-space: nowrap;
+	transform: translate(-50%, -120%);
+
+	strong {
+		display: block;
+		font-weight: v.$font-weight-semibold;
+		margin-bottom: 2px;
+	}
+
+	span {
+		color: v.$color-text-muted;
+	}
+}

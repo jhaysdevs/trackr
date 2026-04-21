@@ -1,0 +1,235 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.container {
+	max-width: 760px;
+	width: 100%;
+	margin: 0 auto;
+	padding: v.$space-6;
+}
+
+// ─── Top bar ──────────────────────────────────────────────────────────────────
+
+.topBar {
+	display: flex;
+	align-items: center;
+	gap: v.$space-3;
+	margin-bottom: v.$space-6;
+}
+
+.taskMeta {
+	display: flex;
+	align-items: center;
+	gap: v.$space-2;
+	padding-left: v.$space-3;
+	border-left: 1px solid v.$color-border;
+}
+
+.taskNumber {
+	font-size: v.$font-size-sm;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-secondary;
+	font-family: v.$font-mono;
+}
+
+.projectSlug {
+	font-size: v.$font-size-sm;
+	color: v.$color-text-muted;
+}
+
+// ─── Form ─────────────────────────────────────────────────────────────────────
+
+.form {
+	@include m.surface(1);
+	padding: v.$space-6;
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-6;
+}
+
+.formHeader {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: v.$space-4;
+	flex-wrap: wrap;
+	padding-bottom: v.$space-5;
+	border-bottom: 1px solid v.$color-border;
+}
+
+.heading {
+	font-size: v.$font-size-xl;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-primary;
+	line-height: v.$line-height-tight;
+}
+
+.badgeRow {
+	display: flex;
+	align-items: center;
+	gap: v.$space-2;
+	flex-wrap: wrap;
+}
+
+// ─── Fields ───────────────────────────────────────────────────────────────────
+
+.fields {
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-5;
+}
+
+.fieldGroup {
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-1;
+}
+
+.label {
+	font-size: v.$font-size-sm;
+	font-weight: v.$font-weight-medium;
+	color: v.$color-text-secondary;
+}
+
+.textarea {
+	width: 100%;
+	padding: v.$space-2 v.$space-3;
+	background: v.$color-bg-raised;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	color: v.$color-text-primary;
+	font-size: v.$font-size-sm;
+	font-family: inherit;
+	line-height: v.$line-height-normal;
+	resize: vertical;
+	transition:
+		border-color v.$transition-base,
+		box-shadow v.$transition-base;
+
+	&::placeholder {
+		color: v.$color-text-muted;
+	}
+
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-border 80%, transparent);
+	}
+
+	&:focus {
+		outline: none;
+		border-color: v.$color-border-focus;
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
+}
+
+.select {
+	height: 36px;
+	width: 100%;
+	padding: 0 v.$space-3;
+	background: v.$color-bg-raised;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	color: v.$color-text-primary;
+	font-size: v.$font-size-sm;
+	cursor: pointer;
+	transition:
+		border-color v.$transition-base,
+		box-shadow v.$transition-base;
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239da3b4' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right v.$space-3 center;
+	padding-right: v.$space-8;
+
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-border 80%, transparent);
+	}
+
+	&:focus {
+		outline: none;
+		border-color: v.$color-border-focus;
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	option {
+		background: v.$color-bg-overlay;
+		color: v.$color-text-primary;
+	}
+}
+
+.errorMsg {
+	font-size: v.$font-size-xs;
+	color: v.$color-danger;
+}
+
+// ─── Grid layouts ─────────────────────────────────────────────────────────────
+
+.grid3 {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: v.$space-4;
+
+	@include m.respond-to("sm") {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+.grid2 {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: v.$space-4;
+}
+
+// ─── Actions ──────────────────────────────────────────────────────────────────
+
+.actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: v.$space-3;
+	padding-top: v.$space-5;
+	border-top: 1px solid v.$color-border;
+	flex-wrap: wrap;
+}
+
+.actionsLeft {
+	display: flex;
+	align-items: center;
+	gap: v.$space-2;
+}
+
+.actionsRight {
+	display: flex;
+	align-items: center;
+	gap: v.$space-2;
+}
+
+.savedMsg {
+	font-size: v.$font-size-sm;
+	color: v.$color-success;
+	font-weight: v.$font-weight-medium;
+}
+
+// ─── Loading / error states ───────────────────────────────────────────────────
+
+.skeletonBar {
+	@include m.skeleton;
+	height: 36px;
+	border-radius: v.$radius-base;
+}
+
+.skeletonRow {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: v.$space-4;
+	margin-top: v.$space-4;
+}
+
+.notFound {
+	color: v.$color-text-secondary;
+	margin-bottom: v.$space-4;
+}

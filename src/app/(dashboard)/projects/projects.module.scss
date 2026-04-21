@@ -1,0 +1,10 @@
+@use "../../../styles/variables" as v;
+
+.main {
+	flex: 1;
+	overflow-y: auto;
+	padding: v.$space-6;
+	max-width: v.$content-max-width;
+	width: 100%;
+	margin: 0 auto;
+}

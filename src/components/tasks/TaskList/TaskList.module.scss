@@ -1,0 +1,69 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-1;
+}
+
+.row {
+	@include m.flex-start;
+	gap: v.$space-4;
+	padding: v.$space-3 v.$space-4;
+	background: v.$color-bg-surface;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	transition:
+		border-color v.$transition-base,
+		background v.$transition-base;
+	cursor: pointer;
+
+	&:hover {
+		border-color: v.$color-border-focus;
+		background: v.$color-bg-raised;
+	}
+}
+
+.number {
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+	font-family: v.$font-mono;
+	width: 40px;
+	flex-shrink: 0;
+}
+
+.title {
+	flex: 1;
+	font-size: v.$font-size-sm;
+	color: v.$color-text-primary;
+	@include m.text-truncate;
+}
+
+.meta {
+	@include m.flex-start;
+	gap: v.$space-3;
+	flex-shrink: 0;
+}
+
+.date {
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+	width: 80px;
+	text-align: right;
+}
+
+.empty {
+	@include m.flex-center;
+	flex-direction: column;
+	gap: v.$space-3;
+	padding: v.$space-16;
+	color: v.$color-text-muted;
+	font-size: v.$font-size-sm;
+}
+
+.skeleton {
+	height: 52px;
+	border-radius: v.$radius-base;
+	@include m.skeleton;
+}

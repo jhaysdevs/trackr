@@ -1,0 +1,67 @@
+@use "variables" as v;
+
+h1 {
+	font-size: v.$font-size-3xl;
+	font-weight: v.$font-weight-bold;
+	line-height: v.$line-height-tight;
+}
+h2 {
+	font-size: v.$font-size-2xl;
+	font-weight: v.$font-weight-semibold;
+	line-height: v.$line-height-tight;
+}
+h3 {
+	font-size: v.$font-size-xl;
+	font-weight: v.$font-weight-semibold;
+	line-height: v.$line-height-tight;
+}
+h4 {
+	font-size: v.$font-size-lg;
+	font-weight: v.$font-weight-medium;
+	line-height: v.$line-height-normal;
+}
+h5 {
+	font-size: v.$font-size-base;
+	font-weight: v.$font-weight-medium;
+	line-height: v.$line-height-normal;
+}
+h6 {
+	font-size: v.$font-size-sm;
+	font-weight: v.$font-weight-medium;
+	line-height: v.$line-height-normal;
+}
+
+p {
+	font-size: v.$font-size-base;
+	line-height: v.$line-height-relaxed;
+	color: v.$color-text-secondary;
+}
+
+small {
+	font-size: v.$font-size-sm;
+}
+
+code {
+	font-family: v.$font-mono;
+	font-size: 0.9em;
+	background: v.$color-bg-overlay;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-sm;
+	padding: 0.1em 0.35em;
+}
+
+pre {
+	font-family: v.$font-mono;
+	font-size: v.$font-size-sm;
+	background: v.$color-bg-overlay;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-md;
+	padding: v.$space-4;
+	overflow-x: auto;
+
+	code {
+		background: none;
+		border: none;
+		padding: 0;
+	}
+}

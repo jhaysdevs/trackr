@@ -1,0 +1,63 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: v.$space-1;
+}
+
+.label {
+	font-size: v.$font-size-sm;
+	font-weight: v.$font-weight-medium;
+	color: v.$color-text-secondary;
+}
+
+.input {
+	height: 36px;
+	width: 100%;
+	padding: 0 v.$space-3;
+	background: v.$color-bg-raised;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	color: v.$color-text-primary;
+	font-size: v.$font-size-sm;
+	transition:
+		border-color v.$transition-base,
+		box-shadow v.$transition-base;
+
+	&::placeholder {
+		color: v.$color-text-muted;
+	}
+
+	&:hover {
+		border-color: darken(#2e3140, 5%);
+	}
+
+	&:focus {
+		outline: none;
+		border-color: v.$color-border-focus;
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
+
+	&.error {
+		border-color: v.$color-danger;
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+.textarea {
+	height: auto;
+	min-height: 80px;
+	padding: v.$space-2 v.$space-3;
+	resize: vertical;
+}
+
+.error-msg {
+	font-size: v.$font-size-xs;
+	color: v.$color-danger;
+}

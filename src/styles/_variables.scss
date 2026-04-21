@@ -1,0 +1,111 @@
+// ─── Color Palette ───────────────────────────────────────────────────────────
+$color-bg-base: #0f1117;
+$color-bg-surface: #16181f;
+$color-bg-raised: #1e2028;
+$color-bg-overlay: #252830;
+$color-bg-hover: #2c2f3a;
+
+$color-border: #2e3140;
+$color-border-focus: #5865f2;
+
+$color-text-primary: #e8eaf0;
+$color-text-secondary: #9da3b4;
+$color-text-muted: #5c6070;
+$color-text-disabled: #3d4050;
+
+$color-accent: #5865f2;
+$color-accent-hover: #4752e0;
+$color-accent-muted: rgba(88, 101, 242, 0.15);
+
+// Status colors
+$color-status-open: #3b82f6;
+$color-status-in-progress: #f59e0b;
+$color-status-in-review: #a855f7;
+$color-status-done: #22c55e;
+$color-status-closed: #6b7280;
+$color-status-cancelled: #ef4444;
+
+// Priority colors
+$color-priority-critical: #ef4444;
+$color-priority-high: #f97316;
+$color-priority-medium: #f59e0b;
+$color-priority-low: #6b7280;
+
+// Semantic
+$color-danger: #ef4444;
+$color-danger-muted: rgba(239, 68, 68, 0.15);
+$color-success: #22c55e;
+$color-success-muted: rgba(34, 197, 94, 0.15);
+$color-warning: #f59e0b;
+$color-warning-muted: rgba(245, 158, 11, 0.15);
+
+// ─── Typography ──────────────────────────────────────────────────────────────
+$font-sans:
+	var(--font-geist-sans),
+	system-ui,
+	-apple-system,
+	sans-serif;
+$font-mono: var(--font-geist-mono), "Fira Code", monospace;
+
+$font-size-xs: 0.75rem; // 12px
+$font-size-sm: 0.875rem; // 14px
+$font-size-base: 1rem; // 16px
+$font-size-lg: 1.125rem; // 18px
+$font-size-xl: 1.25rem; // 20px
+$font-size-2xl: 1.5rem; // 24px
+$font-size-3xl: 1.875rem; // 30px
+
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+$line-height-tight: 1.25;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+// ─── Spacing ─────────────────────────────────────────────────────────────────
+$space-1: 0.25rem;
+$space-2: 0.5rem;
+$space-3: 0.75rem;
+$space-4: 1rem;
+$space-5: 1.25rem;
+$space-6: 1.5rem;
+$space-8: 2rem;
+$space-10: 2.5rem;
+$space-12: 3rem;
+$space-16: 4rem;
+
+// ─── Layout ──────────────────────────────────────────────────────────────────
+$sidebar-width: 240px;
+$header-height: 56px;
+$content-max-width: 1280px;
+
+// ─── Border Radius ───────────────────────────────────────────────────────────
+$radius-sm: 4px;
+$radius-base: 6px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-xl: 16px;
+$radius-full: 9999px;
+
+// ─── Shadows ─────────────────────────────────────────────────────────────────
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+$shadow-base: 0 2px 8px rgba(0, 0, 0, 0.5);
+$shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+$shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.7);
+
+// ─── Transitions ─────────────────────────────────────────────────────────────
+$transition-fast: 100ms ease;
+$transition-base: 150ms ease;
+$transition-slow: 250ms ease;
+
+// ─── Z-index layers ──────────────────────────────────────────────────────────
+$z-base: 0;
+$z-raised: 10;
+$z-dropdown: 100;
+$z-sticky: 200;
+$z-overlay: 300;
+$z-modal: 400;
+$z-toast: 500;
+$z-tooltip: 600;

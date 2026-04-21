@@ -1,0 +1,117 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.header {
+	@include m.flex-between;
+	height: v.$header-height;
+	padding: 0 v.$space-6;
+	background: v.$color-bg-surface;
+	border-bottom: 1px solid v.$color-border;
+	position: sticky;
+	top: 0;
+	z-index: v.$z-sticky;
+	flex-shrink: 0;
+}
+
+.left {
+	@include m.flex-start;
+	gap: v.$space-3;
+}
+
+.right {
+	@include m.flex-start;
+	gap: v.$space-3;
+}
+
+.pageTitle {
+	font-size: v.$font-size-base;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-primary;
+}
+
+.toggleBtn {
+	@include m.flex-center;
+	width: 32px;
+	height: 32px;
+	border-radius: v.$radius-base;
+	color: v.$color-text-secondary;
+	transition:
+		background v.$transition-base,
+		color v.$transition-base;
+
+	&:hover {
+		background: v.$color-bg-raised;
+		color: v.$color-text-primary;
+	}
+}
+
+// ─── User menu ───────────────────────────────────────────────────────────────
+.userMenu {
+	@include m.flex-start;
+	gap: v.$space-2;
+	padding: v.$space-1 v.$space-2;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-md;
+	background: v.$color-bg-raised;
+}
+
+.avatar {
+	@include m.flex-center;
+	width: 28px;
+	height: 28px;
+	border-radius: v.$radius-full;
+	background: v.$color-accent-muted;
+	border: 1px solid v.$color-border;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.avatarImg {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.avatarInitial {
+	font-size: v.$font-size-xs;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-accent;
+}
+
+.userInfo {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.userName {
+	font-size: v.$font-size-xs;
+	font-weight: v.$font-weight-medium;
+	color: v.$color-text-primary;
+	@include m.text-truncate;
+	max-width: 140px;
+}
+
+.userEmail {
+	font-size: 11px;
+	color: v.$color-text-muted;
+	@include m.text-truncate;
+	max-width: 140px;
+}
+
+.signOutBtn {
+	@include m.flex-center;
+	width: 28px;
+	height: 28px;
+	border-radius: v.$radius-base;
+	color: v.$color-text-muted;
+	transition:
+		background v.$transition-base,
+		color v.$transition-base;
+	flex-shrink: 0;
+
+	&:hover {
+		background: v.$color-danger-muted;
+		color: v.$color-danger;
+	}
+}

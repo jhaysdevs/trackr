@@ -1,0 +1,91 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.sidebar {
+	display: flex;
+	flex-direction: column;
+	width: v.$sidebar-width;
+	height: 100vh;
+	background: v.$color-bg-surface;
+	border-right: 1px solid v.$color-border;
+	padding: v.$space-4 0;
+	flex-shrink: 0;
+	position: sticky;
+	top: 0;
+	overflow-y: auto;
+	@include m.scrollbar-thin;
+	transition: width v.$transition-slow;
+
+	&.collapsed {
+		width: 56px;
+	}
+}
+
+.logo {
+	@include m.flex-start;
+	gap: v.$space-3;
+	padding: 0 v.$space-4 v.$space-6;
+	font-size: v.$font-size-lg;
+	font-weight: v.$font-weight-bold;
+	color: v.$color-text-primary;
+
+	.logoIcon {
+		width: 28px;
+		height: 28px;
+		background: v.$color-accent;
+		border-radius: v.$radius-base;
+		@include m.flex-center;
+		flex-shrink: 0;
+		color: #fff;
+		font-size: v.$font-size-sm;
+		font-weight: v.$font-weight-bold;
+	}
+}
+
+.section {
+	margin-bottom: v.$space-6;
+
+	&:last-child {
+		margin-top: auto;
+		margin-bottom: 0;
+	}
+}
+
+.sectionLabel {
+	padding: 0 v.$space-4 v.$space-2;
+	font-size: 10px;
+	font-weight: v.$font-weight-semibold;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: v.$color-text-muted;
+}
+
+.navItem {
+	@include m.flex-start;
+	gap: v.$space-3;
+	padding: v.$space-2 v.$space-4;
+	font-size: v.$font-size-sm;
+	color: v.$color-text-secondary;
+	border-radius: 0;
+	transition:
+		background v.$transition-base,
+		color v.$transition-base;
+	width: 100%;
+	text-align: left;
+
+	&:hover {
+		background: v.$color-bg-raised;
+		color: v.$color-text-primary;
+	}
+
+	&.active {
+		background: v.$color-accent-muted;
+		color: v.$color-accent;
+	}
+
+	.icon {
+		flex-shrink: 0;
+		width: 16px;
+		height: 16px;
+	}
+}

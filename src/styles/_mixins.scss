@@ -1,0 +1,122 @@
+@use "variables" as v;
+
+// ─── Flex helpers ────────────────────────────────────────────────────────────
+@mixin flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@mixin flex-between {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+@mixin flex-start {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+
+// ─── Typography ──────────────────────────────────────────────────────────────
+@mixin text-truncate {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+@mixin text-clamp($lines: 2) {
+	display: -webkit-box;
+	-webkit-line-clamp: $lines;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+// ─── Focus ring ──────────────────────────────────────────────────────────────
+@mixin focus-ring {
+	&:focus-visible {
+		outline: 2px solid v.$color-border-focus;
+		outline-offset: 2px;
+	}
+}
+
+// ─── Surface card ────────────────────────────────────────────────────────────
+@mixin surface($level: 1) {
+	@if $level == 1 {
+		background: v.$color-bg-surface;
+		border: 1px solid v.$color-border;
+	} @else if $level == 2 {
+		background: v.$color-bg-raised;
+		border: 1px solid v.$color-border;
+	} @else if $level == 3 {
+		background: v.$color-bg-overlay;
+		border: 1px solid v.$color-border;
+	}
+	border-radius: v.$radius-md;
+}
+
+// ─── Scrollbar ───────────────────────────────────────────────────────────────
+@mixin scrollbar-thin {
+	scrollbar-width: thin;
+	scrollbar-color: v.$color-border transparent;
+
+	&::-webkit-scrollbar {
+		width: 6px;
+		height: 6px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: v.$color-border;
+		border-radius: v.$radius-full;
+	}
+}
+
+// ─── Breakpoints ─────────────────────────────────────────────────────────────
+@mixin respond-to($bp) {
+	@if $bp == "sm" {
+		@media (min-width: 640px) {
+			@content;
+		}
+	}
+	@if $bp == "md" {
+		@media (min-width: 768px) {
+			@content;
+		}
+	}
+	@if $bp == "lg" {
+		@media (min-width: 1024px) {
+			@content;
+		}
+	}
+	@if $bp == "xl" {
+		@media (min-width: 1280px) {
+			@content;
+		}
+	}
+	@if $bp == "2xl" {
+		@media (min-width: 1536px) {
+			@content;
+		}
+	}
+}
+
+// ─── Skeleton loading ────────────────────────────────────────────────────────
+@mixin skeleton {
+	background: linear-gradient(90deg, v.$color-bg-raised 25%, v.$color-bg-overlay 50%, v.$color-bg-raised 75%);
+	background-size: 200% 100%;
+	animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+	0% {
+		background-position: 200% 0;
+	}
+	100% {
+		background-position: -200% 0;
+	}
+}

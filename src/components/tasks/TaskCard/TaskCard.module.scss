@@ -1,0 +1,80 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.card {
+	@include m.surface(1);
+	padding: v.$space-4;
+	transition:
+		border-color v.$transition-base,
+		background v.$transition-base;
+	cursor: pointer;
+
+	&:hover {
+		border-color: v.$color-border-focus;
+		background: v.$color-bg-raised;
+	}
+}
+
+.top {
+	@include m.flex-between;
+	gap: v.$space-2;
+	margin-bottom: v.$space-2;
+}
+
+.meta {
+	@include m.flex-start;
+	gap: v.$space-2;
+}
+
+.taskNumber {
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+	font-family: v.$font-mono;
+}
+
+.title {
+	font-size: v.$font-size-sm;
+	font-weight: v.$font-weight-medium;
+	color: v.$color-text-primary;
+	line-height: v.$line-height-normal;
+	@include m.text-clamp(2);
+	margin-bottom: v.$space-3;
+}
+
+.footer {
+	@include m.flex-between;
+}
+
+.footerLeft {
+	@include m.flex-start;
+	gap: v.$space-2;
+	flex-wrap: wrap;
+}
+
+.assignee {
+	@include m.flex-start;
+	gap: v.$space-1;
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+}
+
+.avatar {
+	width: 20px;
+	height: 20px;
+	border-radius: v.$radius-full;
+	background: v.$color-bg-overlay;
+	@include m.flex-center;
+	font-size: 10px;
+	color: v.$color-text-secondary;
+	border: 1px solid v.$color-border;
+	flex-shrink: 0;
+}
+
+.dueDate {
+	font-size: v.$font-size-xs;
+	color: v.$color-text-muted;
+}
+
+.dueDateOverdue {
+	color: v.$color-danger;
+}

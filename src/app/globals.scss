@@ -1,0 +1,52 @@
+@use "../styles/variables" as v;
+@use "../styles/reset";
+@use "../styles/typography";
+
+:root {
+	--font-geist-sans: "Geist Sans", system-ui, sans-serif;
+	--font-geist-mono: "Geist Mono", monospace;
+}
+
+html {
+	color-scheme: dark;
+}
+
+body {
+	font-family: v.$font-sans;
+	font-size: v.$font-size-base;
+	color: v.$color-text-primary;
+	background-color: v.$color-bg-base;
+}
+
+// ─── Selection ───────────────────────────────────────────────────────────────
+::selection {
+	background: v.$color-accent-muted;
+	color: v.$color-text-primary;
+}
+
+// ─── Scrollbar (global) ──────────────────────────────────────────────────────
+* {
+	scrollbar-width: thin;
+	scrollbar-color: v.$color-border transparent;
+}
+
+*::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+*::-webkit-scrollbar-track {
+	background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+	background: v.$color-border;
+	border-radius: 3px;
+}
+
+// ─── Focus defaults ──────────────────────────────────────────────────────────
+:focus {
+	outline: none;
+}
+:focus-visible {
+	outline: 2px solid v.$color-border-focus;
+	outline-offset: 2px;
+}

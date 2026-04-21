@@ -1,0 +1,131 @@
+@use "../../../styles/variables" as v;
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: v.$space-1;
+	padding: 2px v.$space-2;
+	border-radius: v.$radius-full;
+	font-size: v.$font-size-xs;
+	font-weight: v.$font-weight-medium;
+	white-space: nowrap;
+	line-height: 1.4;
+}
+
+// ─── Status variants ─────────────────────────────────────────────────────────
+.status-backlog {
+	background: rgba(75, 85, 99, 0.2);
+	color: #9ca3af;
+}
+.status-ready {
+	background: rgba(59, 130, 246, 0.15);
+	color: v.$color-status-open;
+}
+.status-in_progress {
+	background: rgba(245, 158, 11, 0.15);
+	color: v.$color-status-in-progress;
+}
+.status-code_review {
+	background: rgba(139, 92, 246, 0.15);
+	color: #a78bfa;
+}
+.status-qa_testing {
+	background: rgba(6, 182, 212, 0.15);
+	color: #22d3ee;
+}
+.status-blocked {
+	background: rgba(239, 68, 68, 0.15);
+	color: v.$color-status-cancelled;
+}
+.status-resolved {
+	background: rgba(34, 197, 94, 0.15);
+	color: v.$color-status-done;
+}
+.status-closed {
+	background: rgba(107, 114, 128, 0.15);
+	color: v.$color-status-closed;
+}
+
+// ─── Priority variants ────────────────────────────────────────────────────────
+.priority-critical {
+	background: rgba(239, 68, 68, 0.15);
+	color: v.$color-priority-critical;
+}
+.priority-high {
+	background: rgba(249, 115, 22, 0.15);
+	color: v.$color-priority-high;
+}
+.priority-medium {
+	background: rgba(245, 158, 11, 0.15);
+	color: v.$color-priority-medium;
+}
+.priority-low {
+	background: rgba(107, 114, 128, 0.15);
+	color: v.$color-priority-low;
+}
+.priority-trivial {
+	background: rgba(55, 65, 81, 0.4);
+	color: #6b7280;
+}
+
+// ─── Type variants ────────────────────────────────────────────────────────────
+.type-bug {
+	background: rgba(239, 68, 68, 0.12);
+	color: #f87171;
+}
+.type-feature {
+	background: rgba(59, 130, 246, 0.12);
+	color: #60a5fa;
+}
+.type-enhancement {
+	background: rgba(99, 102, 241, 0.12);
+	color: #818cf8;
+}
+.type-task {
+	background: rgba(107, 114, 128, 0.12);
+	color: v.$color-text-secondary;
+}
+.type-refactor {
+	background: rgba(139, 92, 246, 0.12);
+	color: #c084fc;
+}
+.type-tech_debt {
+	background: rgba(245, 158, 11, 0.12);
+	color: #fbbf24;
+}
+.type-documentation {
+	background: rgba(20, 184, 166, 0.12);
+	color: #2dd4bf;
+}
+.type-ui_ux {
+	background: rgba(236, 72, 153, 0.12);
+	color: #f472b6;
+}
+.type-performance {
+	background: rgba(249, 115, 22, 0.12);
+	color: #fb923c;
+}
+.type-security {
+	background: rgba(220, 38, 38, 0.15);
+	color: #fca5a5;
+}
+.type-devops {
+	background: rgba(14, 165, 233, 0.12);
+	color: #38bdf8;
+}
+.type-testing {
+	background: rgba(16, 185, 129, 0.12);
+	color: #34d399;
+}
+.type-spike {
+	background: rgba(168, 85, 247, 0.12);
+	color: #d8b4fe;
+}
+.type-integration {
+	background: rgba(6, 182, 212, 0.12);
+	color: #67e8f9;
+}
+.type-accessibility {
+	background: rgba(132, 204, 22, 0.12);
+	color: #bef264;
+}

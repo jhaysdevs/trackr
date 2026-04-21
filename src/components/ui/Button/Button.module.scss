@@ -1,0 +1,79 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.button {
+	@include m.flex-center;
+	gap: v.$space-2;
+	border-radius: v.$radius-base;
+	font-size: v.$font-size-sm;
+	font-weight: v.$font-weight-medium;
+	line-height: 1;
+	transition:
+		background v.$transition-base,
+		color v.$transition-base,
+		border-color v.$transition-base,
+		opacity v.$transition-base;
+	white-space: nowrap;
+	@include m.focus-ring;
+
+	&:disabled {
+		opacity: 0.45;
+		pointer-events: none;
+	}
+}
+
+// Sizes
+.size-sm {
+	height: 28px;
+	padding: 0 v.$space-3;
+	font-size: v.$font-size-xs;
+}
+.size-md {
+	height: 36px;
+	padding: 0 v.$space-4;
+}
+.size-lg {
+	height: 44px;
+	padding: 0 v.$space-6;
+	font-size: v.$font-size-base;
+}
+
+// Variants
+.variant-primary {
+	background: v.$color-accent;
+	color: #fff;
+	&:hover {
+		background: v.$color-accent-hover;
+	}
+}
+
+.variant-secondary {
+	background: v.$color-bg-raised;
+	color: v.$color-text-primary;
+	border: 1px solid v.$color-border;
+	&:hover {
+		background: v.$color-bg-hover;
+	}
+}
+
+.variant-ghost {
+	background: transparent;
+	color: v.$color-text-secondary;
+	&:hover {
+		background: v.$color-bg-raised;
+		color: v.$color-text-primary;
+	}
+}
+
+.variant-danger {
+	background: v.$color-danger-muted;
+	color: v.$color-danger;
+	&:hover {
+		background: v.$color-danger;
+		color: #fff;
+	}
+}
+
+.loading {
+	pointer-events: none;
+}
