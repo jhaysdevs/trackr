@@ -8,9 +8,11 @@ import styles from './Header.module.scss';
 
 interface HeaderProps {
 	title?: string;
+	/** When true, the page title `<h1>` is not rendered (use when the route body supplies the main heading). */
+	omitPageTitle?: boolean;
 }
 
-export function Header({ title = 'Tasks' }: HeaderProps) {
+export function Header({ title = 'Tasks', omitPageTitle = false }: HeaderProps) {
 	const router = useRouter();
 	const { toggleSidebar, toggleMobileSidebar } = useUiStore();
 
@@ -29,7 +31,7 @@ export function Header({ title = 'Tasks' }: HeaderProps) {
 				<button className={styles.toggleBtn} onClick={handleToggle} aria-label="Toggle sidebar">
 					<PanelLeft size={18} />
 				</button>
-				{title && <h1 className={styles.pageTitle}>{title}</h1>}
+				{!omitPageTitle && title ? <h1 className={styles.pageTitle}>{title}</h1> : null}
 			</div>
 			<div className={styles.right}>
 				<Button

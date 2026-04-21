@@ -295,7 +295,9 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 
 			<form className={styles.form} onSubmit={form.handleSubmit(onSubmit)} noValidate>
 				<div className={styles.formHeader}>
-					<h1 className={styles.heading}>{isEdit ? 'Edit Task' : 'New Task'}</h1>
+					<h1 className={styles.heading} aria-live="polite" aria-atomic="true">
+						{isEdit ? 'Edit Task' : (watchedTitle?.trim() || 'New Task')}
+					</h1>
 					{isEdit && task && (
 						<div className={styles.badgeRow}>
 							<Badge variant={{ kind: 'status', value: task.status }} />
