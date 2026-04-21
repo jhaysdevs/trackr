@@ -266,7 +266,6 @@ function ColumnHeader({
 	return (
 		<div
 			className={cn(styles.columnHeader, isDragOver && styles.columnHeaderDragOver)}
-			style={{ '--col-color': list.color } as React.CSSProperties}
 			draggable
 			onDragStart={onDragStart}
 			onDragOver={onDragOver}
@@ -617,6 +616,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 										styles.column,
 										dragOverColumnId === list.id && styles.columnTaskDragOver,
 									)}
+									style={{ '--col-color': list.color } as React.CSSProperties}
 								>
 									<ColumnHeader
 										list={list}

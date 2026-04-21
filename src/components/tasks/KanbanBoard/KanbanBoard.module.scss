@@ -398,18 +398,41 @@
 	border-radius: v.$radius-md;
 	cursor: pointer;
 	transition:
-		border-color v.$transition-base,
-		background v.$transition-base;
+		border-color 0.28s ease,
+		background 0.28s ease,
+		box-shadow 0.45s ease;
 
 	&:hover {
-		border-color: v.$color-border-focus;
+		border-color: var(--col-color, v.$color-border-focus);
 		background: v.$color-bg-hover;
+		animation: task-card-glow-pulse 2.4s ease-in-out infinite alternate;
 	}
 
 	&:focus-visible {
 		outline: none;
-		border-color: v.$color-border-focus;
-		box-shadow: 0 0 0 2px v.$color-accent-muted;
+		border-color: var(--col-color, v.$color-border-focus);
+		box-shadow:
+			0 0 0 2px color-mix(in srgb, var(--col-color, v.$color-border-focus) 35%, transparent),
+			0 6px 22px color-mix(in srgb, var(--col-color, v.$color-border-focus) 25%, transparent);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		&:hover {
+			animation: none;
+		}
+	}
+}
+
+@keyframes task-card-glow-pulse {
+	0% {
+		box-shadow:
+			0 3px 14px color-mix(in srgb, var(--col-color, v.$color-border-focus) 18%, transparent),
+			0 10px 28px -8px color-mix(in srgb, var(--col-color, v.$color-border-focus) 28%, transparent);
+	}
+	100% {
+		box-shadow:
+			0 8px 28px color-mix(in srgb, var(--col-color, v.$color-border-focus) 32%, transparent),
+			0 20px 48px -4px color-mix(in srgb, var(--col-color, v.$color-border-focus) 45%, transparent);
 	}
 }
 
