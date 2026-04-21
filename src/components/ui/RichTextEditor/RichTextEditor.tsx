@@ -3,7 +3,6 @@
 import { useEffect, type CSSProperties } from 'react';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
 import { cn } from '@/lib/utils';
 import styles from './RichTextEditor.module.scss';
 
@@ -196,7 +195,7 @@ export function RichTextEditor({
 	minHeight = 140,
 }: RichTextEditorProps) {
 	const editor = useEditor({
-		extensions: [StarterKit, Underline],
+		extensions: [StarterKit],
 		content: value,
 		immediatelyRender: false,
 		editable: !disabled,

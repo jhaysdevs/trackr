@@ -17,9 +17,6 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: ^5.99.1
         version: 5.99.1(@tanstack/react-query@5.99.1(react@19.2.4))(react@19.2.4)
-      '@tiptap/extension-underline':
-        specifier: ^3.22.4
-        version: 3.22.4(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))
       '@tiptap/react':
         specifier: ^3.22.4
         version: 3.22.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.4(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)

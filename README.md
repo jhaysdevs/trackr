@@ -102,3 +102,7 @@ projects
 Server state (async data) is managed through TanStack Query with key factories in `src/hooks/`. Client/UI state (sidebar, modals) lives in Zustand. Task filters are persisted in `localStorage` via Zustand's `persist` middleware so filter selections survive page refreshes.
 
 All mutations invalidate the relevant TanStack Query cache keys, so lists and stats update automatically after create/edit/delete.
+
+## Todo (future)
+
+- **Persistence:** Replace or extend `src/lib/storage.ts` so persistence uses **Postgres** (or another production-ready database) instead of browser `localStorage`, while keeping the existing API layer (`src/lib/api/*`) as the seam TanStack Query talks to.
