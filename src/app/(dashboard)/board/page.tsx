@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { Header } from '@/components/layout/Header/Header';
 import { KanbanBoard } from '@/components/tasks/KanbanBoard/KanbanBoard';
 import styles from './board.module.scss';
@@ -10,7 +11,9 @@ export default function BoardPage() {
 		<>
 			<Header title="Board" />
 			<div className={styles.boardWrap}>
-				<KanbanBoard />
+				<Suspense fallback={<p className={styles.boardSuspense}>Loading board…</p>}>
+					<KanbanBoard />
+				</Suspense>
 			</div>
 		</>
 	);

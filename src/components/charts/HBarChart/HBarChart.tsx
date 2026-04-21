@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 import styles from './HBarChart.module.scss';
 
 export interface BarDatum {
+	/** Stable bucket id (e.g. type key) for navigation / filters */
+	id: string;
 	label: string;
 	value: number;
 	color: string;
@@ -14,6 +16,7 @@ export interface BarDatum {
 interface HBarChartProps {
 	data: BarDatum[];
 	className?: string;
+	onRowClick?: (row: BarDatum) => void;
 }
 
 const ROW_H = 26;
@@ -22,7 +25,7 @@ const VALUE_W = 42;
 const BAR_GAP = 5;
 const MARGIN = { top: 4, right: VALUE_W + 8, bottom: 4, left: LABEL_W };
 
-export function HBarChart({ data, className }: HBarChartProps) {
+export function HBarChart({ data, className, onRowClick }: HBarChartProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const svgRef = useRef<SVGSVGElement>(null);
 
@@ -156,11 +159,20 @@ export function HBarChart({ data, className }: HBarChartProps) {
 				tooltip.style('opacity', '0');
 			});
 
+		if (onRowClick) {
+			rows
+				.style('cursor', 'pointer')
+				.on('click', (event: MouseEvent, d: BarDatum) => {
+					event.stopPropagation();
+					onRowClick(d);
+				});
+		}
+
 		return () => {
 			tooltip.remove();
 			svg.selectAll('*').interrupt().remove();
 		};
-	}, [sorted, total]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [sorted, total, onRowClick]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	if (total === 0) return <div className={cn(styles.empty, className)}>No data</div>;
 

@@ -38,14 +38,28 @@
 
 .legendItem {
 	@include m.flex-between;
-	gap: v.$space-2;
+	width: 100%;
+	margin: 0;
 	padding: v.$space-1 v.$space-2;
+	border: none;
 	border-radius: v.$radius-sm;
+	background: transparent;
+	color: inherit;
+	font: inherit;
+	text-align: left;
 	transition: background v.$transition-fast;
 	cursor: default;
 
-	&:hover {
+	&:not(:disabled):hover {
 		background: v.$color-bg-overlay;
+	}
+
+	&:not(:disabled) {
+		cursor: pointer;
+	}
+
+	&:disabled {
+		opacity: 1;
 	}
 }
 

@@ -7,3 +7,10 @@
 	display: flex;
 	flex-direction: column;
 }
+
+.boardSuspense {
+	margin: 0;
+	padding: 1rem 0;
+	color: var(--color-text-muted, #8b92a8);
+	font-size: 0.875rem;
+}

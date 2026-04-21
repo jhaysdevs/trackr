@@ -11,7 +11,7 @@ import {
 	type DragEvent,
 } from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLists, useCreateList, useUpdateList, useDeleteList, useReorderLists } from '@/hooks/useLists';
 import { useTasks, taskKeys } from '@/hooks/useTasks';
@@ -20,7 +20,8 @@ import { tasksApi } from '@/lib/api/tasks';
 import { Badge } from '@/components/ui/Badge/Badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal/TaskDetailModal';
 import { formatDate, cn } from '@/lib/utils';
-import type { List, Task, TaskPriority, TaskType } from '@/types';
+import { parseBoardSearchParams, type BoardFiltersFromUrl } from '@/lib/boardSearchParams';
+import type { List, Task, TaskPriority, TaskStatus, TaskType } from '@/types';
 import styles from './KanbanBoard.module.scss';
 
 // ─── Color palette for new lists ─────────────────────────────────────────────
@@ -36,6 +37,17 @@ const PRIORITY_OPTIONS: Array<{ value: TaskPriority; label: string }> = [
 	{ value: 'high', label: 'High' },
 	{ value: 'medium', label: 'Medium' },
 	{ value: 'low', label: 'Low' },
+];
+
+const STATUS_OPTIONS: Array<{ value: TaskStatus; label: string }> = [
+	{ value: 'backlog', label: 'Backlog' },
+	{ value: 'ready', label: 'Ready / To Do' },
+	{ value: 'in_progress', label: 'In Progress' },
+	{ value: 'code_review', label: 'Code Review' },
+	{ value: 'qa_testing', label: 'QA / Testing' },
+	{ value: 'blocked', label: 'Blocked' },
+	{ value: 'resolved', label: 'Resolved' },
+	{ value: 'closed', label: 'Closed / Done' },
 ];
 
 const TYPE_OPTIONS: Array<{ value: TaskType; label: string }> = [
@@ -68,10 +80,38 @@ function MultiSelectFilter<T extends string>({
 	onToggle: (value: T) => void;
 	onClear: () => void;
 }) {
+	const [open, setOpen] = useState(false);
+	const containerRef = useRef<HTMLDetailsElement>(null);
+
 	const buttonLabel = selectedValues.length === 0 ? label : `${label} (${selectedValues.length})`;
 
+	useEffect(() => {
+		if (!open) return;
+		function handlePointerDown(e: PointerEvent) {
+			const el = containerRef.current;
+			if (el && !el.contains(e.target as Node)) {
+				setOpen(false);
+			}
+		}
+		document.addEventListener('pointerdown', handlePointerDown, true);
+		return () => document.removeEventListener('pointerdown', handlePointerDown, true);
+	}, [open]);
+
 	return (
-		<details className={styles.filterDropdown}>
+		<details
+			ref={containerRef}
+			className={styles.filterDropdown}
+			open={open}
+			onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
+			onBlur={(e) => {
+				if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+					setOpen(false);
+				}
+			}}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') setOpen(false);
+			}}
+		>
 			<summary className={styles.filterButton}>{buttonLabel}</summary>
 			<div className={styles.filterMenu}>
 				<div className={styles.filterMenuHeader}>
@@ -265,14 +305,15 @@ function ColumnHeader({
 
 // ─── Board ────────────────────────────────────────────────────────────────────
 
-export function KanbanBoard() {
+function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFromUrl }) {
 	const router = useRouter();
 	const qc = useQueryClient();
 
 	// ── Data ──
-	const [projectFilters, setProjectFilters] = useState<string[]>([]);
-	const [priorityFilters, setPriorityFilters] = useState<TaskPriority[]>([]);
-	const [typeFilters, setTypeFilters] = useState<TaskType[]>([]);
+	const [projectFilters, setProjectFilters] = useState(initialFilters.projectIds);
+	const [priorityFilters, setPriorityFilters] = useState(initialFilters.priorities);
+	const [typeFilters, setTypeFilters] = useState(initialFilters.types);
+	const [statusFilters, setStatusFilters] = useState(initialFilters.statuses);
 	const { data: rawLists = [], isPending: listsLoading } = useLists();
 	const { data: tasksData, isPending: tasksLoading } = useTasks({ pageSize: 10_000 });
 	const { data: projectsData } = useProjects();
@@ -290,9 +331,11 @@ export function KanbanBoard() {
 			const matchesPriority =
 				priorityFilters.length === 0 || priorityFilters.includes(task.priority);
 			const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
-			return matchesProject && matchesPriority && matchesType;
+			const matchesStatus =
+				statusFilters.length === 0 || statusFilters.includes(task.status);
+			return matchesProject && matchesPriority && matchesType && matchesStatus;
 		});
-	}, [tasks, projectFilters, priorityFilters, typeFilters]);
+	}, [tasks, projectFilters, priorityFilters, typeFilters, statusFilters]);
 
 	// ── Mutations ──
 	const createListMutation = useCreateList();
@@ -528,6 +571,17 @@ export function KanbanBoard() {
 					onClear={() => setPriorityFilters([])}
 				/>
 				<MultiSelectFilter
+					label="Status"
+					options={STATUS_OPTIONS}
+					selectedValues={statusFilters}
+					onToggle={(value) => {
+						setStatusFilters((prev) =>
+							prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+						);
+					}}
+					onClear={() => setStatusFilters([])}
+				/>
+				<MultiSelectFilter
 					label="Type"
 					options={TYPE_OPTIONS}
 					selectedValues={typeFilters}
@@ -650,5 +704,13 @@ export function KanbanBoard() {
 			<TaskDetailModal taskId={modalTaskId} onClose={() => setModalTaskId(null)} />
 		)}
 		</>
+	);
+}
+
+export function KanbanBoard() {
+	const searchParams = useSearchParams();
+	const initialFilters = useMemo(() => parseBoardSearchParams(searchParams), [searchParams]);
+	return (
+		<KanbanBoardInner key={searchParams.toString()} initialFilters={initialFilters} />
 	);
 }

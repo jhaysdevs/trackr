@@ -1,7 +1,10 @@
 'use client';
 
+import { useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { Info } from 'lucide-react';
 import { useStats } from '@/hooks/useStats';
+import { buildBoardUrl } from '@/lib/boardSearchParams';
 import { DonutChart, type DonutSlice } from '@/components/charts/DonutChart/DonutChart';
 import { HBarChart, type BarDatum } from '@/components/charts/HBarChart/HBarChart';
 import type { TaskStatus, TaskPriority, TaskType, StatsBucket } from '@/types';
@@ -53,6 +56,7 @@ function toDonutSlices<K extends string>(
 ): DonutSlice[] {
 	const map = Object.fromEntries(buckets.map((b) => [b.key, b.count]));
 	return order.map((key) => ({
+		id: key,
 		label: meta[key].label,
 		value: map[key] ?? 0,
 		color: meta[key].color,
@@ -66,6 +70,7 @@ function toBarData<K extends string>(
 ): BarDatum[] {
 	const map = Object.fromEntries(buckets.map((b) => [b.key, b.count]));
 	return order.map((key) => ({
+		id: key,
 		label: meta[key].label,
 		value: map[key] ?? 0,
 		color: meta[key].color,
@@ -75,7 +80,29 @@ function toBarData<K extends string>(
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function DashboardClient() {
+	const router = useRouter();
 	const { data: stats, isPending } = useStats();
+
+	const goToBoardWithStatus = useCallback(
+		(s: TaskStatus) => {
+			router.push(buildBoardUrl({ statuses: [s] }));
+		},
+		[router]
+	);
+
+	const goToBoardWithPriority = useCallback(
+		(p: TaskPriority) => {
+			router.push(buildBoardUrl({ priorities: [p] }));
+		},
+		[router]
+	);
+
+	const goToBoardWithType = useCallback(
+		(t: TaskType) => {
+			router.push(buildBoardUrl({ types: [t] }));
+		},
+		[router]
+	);
 
 	const statusSlices = stats
 		? toDonutSlices(stats.byStatus, STATUS_META, Object.keys(STATUS_META) as TaskStatus[])
@@ -140,7 +167,12 @@ export function DashboardClient() {
 							<h2 className={styles.chartTitle}>Tasks by Status</h2>
 							<p className={styles.chartSubtitle}>Distribution across workflow stages</p>
 						</div>
-						{!isPending && <DonutChart data={statusSlices} />}
+						{!isPending && (
+							<DonutChart
+								data={statusSlices}
+								onSliceClick={(slice) => goToBoardWithStatus(slice.id as TaskStatus)}
+							/>
+						)}
 					</div>
 
 					<div className={styles.chartCard}>
@@ -148,7 +180,12 @@ export function DashboardClient() {
 							<h2 className={styles.chartTitle}>Tasks by Priority</h2>
 							<p className={styles.chartSubtitle}>Severity and urgency breakdown</p>
 						</div>
-						{!isPending && <DonutChart data={prioritySlices} />}
+						{!isPending && (
+							<DonutChart
+								data={prioritySlices}
+								onSliceClick={(slice) => goToBoardWithPriority(slice.id as TaskPriority)}
+							/>
+						)}
 					</div>
 				</div>
 
@@ -158,7 +195,9 @@ export function DashboardClient() {
 						<h2 className={styles.chartTitle}>Tasks by Type</h2>
 						<p className={styles.chartSubtitle}>Volume per work category</p>
 					</div>
-					{!isPending && <HBarChart data={typeBars} />}
+					{!isPending && (
+						<HBarChart data={typeBars} onRowClick={(row) => goToBoardWithType(row.id as TaskType)} />
+					)}
 				</div>
 			</div>
 		</main>

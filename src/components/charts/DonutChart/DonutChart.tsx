@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils';
 import styles from './DonutChart.module.scss';
 
 export interface DonutSlice {
+	/** Stable bucket id (e.g. status, priority, type key) for navigation / filters */
+	id: string;
 	label: string;
 	value: number;
 	color: string;
@@ -14,6 +16,7 @@ export interface DonutSlice {
 interface DonutChartProps {
 	data: DonutSlice[];
 	className?: string;
+	onSliceClick?: (slice: DonutSlice) => void;
 }
 
 const SIZE = 220;
@@ -21,7 +24,7 @@ const OUTER_R = SIZE / 2 - 8;
 const INNER_R = OUTER_R * 0.58;
 const PAD_ANGLE = 0.025;
 
-export function DonutChart({ data, className }: DonutChartProps) {
+export function DonutChart({ data, className, onSliceClick }: DonutChartProps) {
 	const svgRef = useRef<SVGSVGElement>(null);
 	const activeSlices = data.filter((d) => d.value > 0);
 	const total = data.reduce((s, d) => s + d.value, 0);
@@ -145,11 +148,18 @@ export function DonutChart({ data, className }: DonutChartProps) {
 				centerVal.text(total.toLocaleString());
 			});
 
+		if (onSliceClick) {
+			paths.on('click', (event: MouseEvent, d: d3.PieArcDatum<DonutSlice>) => {
+				event.stopPropagation();
+				onSliceClick(d.data);
+			});
+		}
+
 		return () => {
 			tooltip.remove();
 			svg.selectAll('*').interrupt().remove();
 		};
-	}, [activeSlices, total]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [activeSlices, total, onSliceClick]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<div className={cn(styles.wrapper, className)}>
@@ -163,13 +173,19 @@ export function DonutChart({ data, className }: DonutChartProps) {
 				</div>
 				<div className={styles.legend}>
 					{data.map((d) => (
-						<div key={d.label} className={styles.legendItem}>
+						<button
+							key={d.id}
+							type="button"
+							className={styles.legendItem}
+							disabled={!onSliceClick}
+							onClick={() => onSliceClick?.(d)}
+						>
 							<div className={styles.legendLeft}>
 								<span className={styles.dot} style={{ background: d.color }} />
 								<span className={styles.label}>{d.label}</span>
 							</div>
 							<span className={styles.count}>{d.value.toLocaleString()}</span>
-						</div>
+						</button>
 					))}
 				</div>
 			</div>
