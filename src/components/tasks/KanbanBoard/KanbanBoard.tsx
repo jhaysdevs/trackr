@@ -11,7 +11,7 @@ import {
 	type DragEvent,
 } from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLists, useCreateList, useUpdateList, useDeleteList, useReorderLists } from '@/hooks/useLists';
 import { useTasks, taskKeys } from '@/hooks/useTasks';
@@ -19,6 +19,7 @@ import { useProjects } from '@/hooks/useProjects';
 import { tasksApi } from '@/lib/api/tasks';
 import { Badge } from '@/components/ui/Badge/Badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal/TaskDetailModal';
+import { NewTaskModal } from '@/components/tasks/NewTaskModal/NewTaskModal';
 import { formatDate, cn } from '@/lib/utils';
 import { parseBoardSearchParams, type BoardFiltersFromUrl } from '@/lib/boardSearchParams';
 import type { List, Task, TaskPriority, TaskStatus, TaskType } from '@/types';
@@ -306,7 +307,6 @@ function ColumnHeader({
 // ─── Board ────────────────────────────────────────────────────────────────────
 
 function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFromUrl }) {
-	const router = useRouter();
 	const qc = useQueryClient();
 
 	// ── Data ──
@@ -368,6 +368,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 	const taskDropTargetRef = useRef<{ id: string; before: boolean } | null>(null);
 	const skipNextTaskClickRef = useRef(false);
 	const [modalTaskId, setModalTaskId] = useState<string | null>(null);
+	const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
 	const [dragOverListId, setDragOverListId] = useState<string | null>(null);
 	const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
 	const [taskDropTarget, setTaskDropTarget] = useState<{ id: string; before: boolean } | null>(null);
@@ -654,7 +655,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 												onFinishEdit={(name) => handleRename(list.id, name)}
 												onCancelEdit={() => setEditingListId(null)}
 												onDelete={() => handleDelete(list.id)}
-												onAddTask={() => router.push('/tasks/new')}
+												onAddTask={() => setNewTaskModalOpen(true)}
 											/>
 											<div
 												className={styles.columnBody}
@@ -703,6 +704,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 		{modalTaskId && (
 			<TaskDetailModal taskId={modalTaskId} onClose={() => setModalTaskId(null)} />
 		)}
+		{newTaskModalOpen && <NewTaskModal onClose={() => setNewTaskModalOpen(false)} />}
 		</>
 	);
 }

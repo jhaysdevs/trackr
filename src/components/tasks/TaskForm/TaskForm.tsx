@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/Badge/Badge';
 import { RichTextEditor } from '@/components/ui/RichTextEditor/RichTextEditor';
 import { useTask, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
-import type { TaskStatus, TaskPriority, TaskType } from '@/types';
+import type { Task, TaskStatus, TaskPriority, TaskType } from '@/types';
 import styles from './TaskForm.module.scss';
 
 // dueDate is kept as a string (YYYY-MM-DD from the date input) and converted in onSubmit.
@@ -108,9 +108,11 @@ interface TaskFormProps {
 	/** When set with `onDismiss`, the header uses Close instead of navigating back to the task list. */
 	variant?: 'page' | 'modal';
 	onDismiss?: () => void;
+	/** After successful create: called instead of navigating to `/tasks/[id]` when provided. */
+	onCreated?: (task: Task) => void;
 }
 
-export function TaskForm({ taskId, variant = 'page', onDismiss }: TaskFormProps) {
+export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: TaskFormProps) {
 	const router = useRouter();
 	const isEdit = !!taskId;
 	const [confirmDelete, setConfirmDelete] = useState(false);
@@ -186,7 +188,11 @@ export function TaskForm({ taskId, variant = 'page', onDismiss }: TaskFormProps)
 				dueDate,
 				labelIds: [],
 			});
-			router.push(`/tasks/${created.id}`);
+			if (onCreated) {
+				onCreated(created);
+			} else {
+				router.push(`/tasks/${created.id}`);
+			}
 		}
 	}
 
@@ -356,7 +362,10 @@ export function TaskForm({ taskId, variant = 'page', onDismiss }: TaskFormProps)
 						<Button
 							type="button"
 							variant="ghost"
-							onClick={() => router.push('/tasks')}
+							onClick={() => {
+								if (variant === 'modal' && onDismiss) onDismiss();
+								else router.push('/tasks');
+							}}
 							disabled={isBusy}
 						>
 							Cancel
