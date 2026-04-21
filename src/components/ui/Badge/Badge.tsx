@@ -66,5 +66,7 @@ export function Badge({ variant, className }: BadgeProps) {
 		variantClass = variant.className;
 	}
 
+	if (!label && variant.kind !== 'custom') return null;
+
 	return <span className={cn(styles.badge, variantClass, className)}>{label}</span>;
 }

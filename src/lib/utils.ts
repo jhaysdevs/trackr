@@ -32,7 +32,12 @@ export function formatDate(
 		if (diffMs < 86_400_000) return `${Math.floor(diffMs / 3_600_000)}h ago`;
 		if (diffDays < 7) return `${diffDays}d ago`;
 		if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
-		return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+		const sameYear = d.getFullYear() === now.getFullYear();
+		return d.toLocaleDateString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			...(sameYear ? {} : { year: 'numeric' }),
+		});
 	}
 
 	if (style === 'short') {

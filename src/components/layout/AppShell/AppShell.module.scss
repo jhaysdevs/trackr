@@ -2,7 +2,7 @@
 
 .shell {
 	display: flex;
-	height: 100vh;
+	height: 100dvh;
 	overflow: hidden;
 }
 
@@ -11,10 +11,17 @@
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
+	min-width: 0;
 }
 
-.content {
-	flex: 1;
-	overflow-y: auto;
-	padding: v.$space-6;
+.overlay {
+	display: none;
+
+	@media (max-width: 767px) {
+		display: block;
+		position: fixed;
+		inset: 0;
+		background: rgba(0, 0, 0, 0.6);
+		z-index: v.$z-overlay;
+	}
 }

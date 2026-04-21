@@ -5,7 +5,7 @@
 	display: flex;
 	flex-direction: column;
 	width: v.$sidebar-width;
-	height: 100vh;
+	height: 100dvh;
 	background: v.$color-bg-surface;
 	border-right: 1px solid v.$color-border;
 	padding: v.$space-4 0;
@@ -18,6 +18,22 @@
 
 	&.collapsed {
 		width: 56px;
+	}
+
+	// On mobile the sidebar is a fixed drawer, off-screen by default
+	@media (max-width: 767px) {
+		position: fixed;
+		left: 0;
+		top: 0;
+		z-index: calc(v.$z-overlay + 1);
+		height: 100dvh;
+		transform: translateX(-100%);
+		transition: transform v.$transition-slow;
+		width: v.$sidebar-width !important; // always full-width on mobile
+
+		&.mobileOpen {
+			transform: translateX(0);
+		}
 	}
 }
 

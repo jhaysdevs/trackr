@@ -5,7 +5,11 @@
 	max-width: 760px;
 	width: 100%;
 	margin: 0 auto;
-	padding: v.$space-6;
+	padding: v.$space-4;
+
+	@include m.respond-to("md") {
+		padding: v.$space-6;
+	}
 }
 
 // ─── Top bar ──────────────────────────────────────────────────────────────────
@@ -170,7 +174,7 @@
 
 .grid3 {
 	display: grid;
-	grid-template-columns: repeat(3, 1fr);
+	grid-template-columns: 1fr;
 	gap: v.$space-4;
 
 	@include m.respond-to("sm") {
@@ -180,8 +184,12 @@
 
 .grid2 {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: 1fr;
 	gap: v.$space-4;
+
+	@include m.respond-to("sm") {
+		grid-template-columns: 1fr 1fr;
+	}
 }
 
 // ─── Actions ──────────────────────────────────────────────────────────────────

@@ -4,29 +4,45 @@
 .header {
 	@include m.flex-between;
 	height: v.$header-height;
-	padding: 0 v.$space-6;
+	padding: 0 v.$space-4;
 	background: v.$color-bg-surface;
 	border-bottom: 1px solid v.$color-border;
 	position: sticky;
 	top: 0;
 	z-index: v.$z-sticky;
 	flex-shrink: 0;
+
+	@include m.respond-to("md") {
+		padding: 0 v.$space-6;
+	}
 }
 
 .left {
 	@include m.flex-start;
-	gap: v.$space-3;
+	gap: v.$space-2;
+
+	@include m.respond-to("md") {
+		gap: v.$space-3;
+	}
 }
 
 .right {
 	@include m.flex-start;
-	gap: v.$space-3;
+	gap: v.$space-2;
+
+	@include m.respond-to("md") {
+		gap: v.$space-3;
+	}
 }
 
 .pageTitle {
-	font-size: v.$font-size-base;
+	font-size: v.$font-size-sm;
 	font-weight: v.$font-weight-semibold;
 	color: v.$color-text-primary;
+
+	@include m.respond-to("md") {
+		font-size: v.$font-size-base;
+	}
 }
 
 .toggleBtn {
@@ -38,10 +54,18 @@
 	transition:
 		background v.$transition-base,
 		color v.$transition-base;
+	flex-shrink: 0;
 
 	&:hover {
 		background: v.$color-bg-raised;
 		color: v.$color-text-primary;
+	}
+}
+
+// Hide "New Task" label on very small screens — icon-only button
+.btnLabel {
+	@media (max-width: 400px) {
+		display: none;
 	}
 }
 
@@ -78,10 +102,15 @@
 	color: v.$color-accent;
 }
 
+// Hide text labels on mobile; show avatar only
 .userInfo {
-	display: flex;
-	flex-direction: column;
-	min-width: 0;
+	display: none;
+
+	@include m.respond-to("md") {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
 }
 
 .userName {

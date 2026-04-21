@@ -19,9 +19,17 @@ const BOTTOM_NAV = [{ href: '/settings', label: 'Settings', icon: Settings }];
 export function Sidebar() {
 	const pathname = usePathname();
 	const collapsed = useUiStore((s) => s.sidebarCollapsed);
+	const mobileSidebarOpen = useUiStore((s) => s.mobileSidebarOpen);
+	const closeMobileSidebar = useUiStore((s) => s.closeMobileSidebar);
 
 	return (
-		<aside className={cn(styles.sidebar, collapsed && styles.collapsed)}>
+		<aside
+			className={cn(
+				styles.sidebar,
+				collapsed && styles.collapsed,
+				mobileSidebarOpen && styles.mobileOpen,
+			)}
+		>
 			<div className={styles.logo}>
 				<div className={styles.logoIcon}>
 					<Bug size={14} />
@@ -36,6 +44,7 @@ export function Sidebar() {
 						key={href}
 						href={href}
 						className={cn(styles.navItem, pathname.startsWith(href) && styles.active)}
+						onClick={closeMobileSidebar}
 					>
 						<Icon className={styles.icon} size={16} />
 						{!collapsed && label}
@@ -49,6 +58,7 @@ export function Sidebar() {
 						key={href}
 						href={href}
 						className={cn(styles.navItem, pathname.startsWith(href) && styles.active)}
+						onClick={closeMobileSidebar}
 					>
 						<Icon className={styles.icon} size={16} />
 						{!collapsed && label}

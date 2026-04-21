@@ -8,9 +8,11 @@
 }
 
 .row {
-	@include m.flex-start;
-	gap: v.$space-4;
-	padding: v.$space-3 v.$space-4;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: v.$space-2;
+	padding: v.$space-3;
 	background: v.$color-bg-surface;
 	border: 1px solid v.$color-border;
 	border-radius: v.$radius-base;
@@ -19,6 +21,12 @@
 		background v.$transition-base;
 	cursor: pointer;
 
+	@include m.respond-to("md") {
+		flex-wrap: nowrap;
+		gap: v.$space-4;
+		padding: v.$space-3 v.$space-4;
+	}
+
 	&:hover {
 		border-color: v.$color-border-focus;
 		background: v.$color-bg-raised;
@@ -26,11 +34,15 @@
 }
 
 .number {
+	min-width: 30px;
 	font-size: v.$font-size-xs;
 	color: v.$color-text-muted;
 	font-family: v.$font-mono;
-	width: 40px;
 	flex-shrink: 0;
+
+	@include m.respond-to("md") {
+		width: 40px;
+	}
 }
 
 .title {
@@ -38,19 +50,42 @@
 	font-size: v.$font-size-sm;
 	color: v.$color-text-primary;
 	@include m.text-truncate;
+	min-width: 0;
+	// On mobile: take full remaining width after number+type, then wrap meta below
+	width: calc(100% - 120px);
+
+	@include m.respond-to("md") {
+		width: auto;
+	}
 }
 
 .meta {
 	@include m.flex-start;
-	gap: v.$space-3;
+	gap: v.$space-2;
 	flex-shrink: 0;
+	// On mobile: push to its own line by taking full width
+	width: 100%;
+	padding-left: calc(30px + v.$space-2); // align under title
+
+	@include m.respond-to("md") {
+		gap: v.$space-3;
+		width: auto;
+		padding-left: 0;
+	}
 }
 
 .date {
 	font-size: v.$font-size-xs;
 	color: v.$color-text-muted;
-	width: 80px;
-	text-align: right;
+	white-space: nowrap;
+	flex-shrink: 0;
+	display: none;
+
+	@include m.respond-to("md") {
+		display: block;
+		width: 80px;
+		text-align: right;
+	}
 }
 
 .empty {

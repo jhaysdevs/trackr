@@ -4,8 +4,12 @@
 .page {
 	flex: 1;
 	overflow-y: auto;
-	padding: v.$space-6;
+	padding: v.$space-4;
 	@include m.scrollbar-thin;
+
+	@include m.respond-to("md") {
+		padding: v.$space-6;
+	}
 }
 
 .inner {
@@ -13,7 +17,11 @@
 	margin: 0 auto;
 	display: flex;
 	flex-direction: column;
-	gap: v.$space-6;
+	gap: v.$space-4;
+
+	@include m.respond-to("md") {
+		gap: v.$space-6;
+	}
 }
 
 // ─── Demo banner ─────────────────────────────────────────────────────────────
@@ -36,21 +44,26 @@
 // ─── Summary row ─────────────────────────────────────────────────────────────
 .statGrid {
 	display: grid;
-	grid-template-columns: repeat(4, 1fr);
-	gap: v.$space-4;
+	grid-template-columns: repeat(2, 1fr);
+	gap: v.$space-3;
 
 	@include m.respond-to("md") {
 		grid-template-columns: repeat(4, 1fr);
+		gap: v.$space-4;
 	}
 }
 
 .statCard {
 	@include m.surface(1);
-	padding: v.$space-4 v.$space-5;
+	padding: v.$space-3 v.$space-4;
 	display: flex;
 	flex-direction: column;
 	gap: v.$space-1;
 	transition: border-color v.$transition-base;
+
+	@include m.respond-to("md") {
+		padding: v.$space-4 v.$space-5;
+	}
 
 	&:hover {
 		border-color: v.$color-border-focus;
@@ -66,11 +79,15 @@
 }
 
 .statValue {
-	font-size: v.$font-size-3xl;
+	font-size: v.$font-size-2xl;
 	font-weight: v.$font-weight-bold;
 	color: v.$color-text-primary;
 	line-height: 1;
 	font-variant-numeric: tabular-nums;
+
+	@include m.respond-to("md") {
+		font-size: v.$font-size-3xl;
+	}
 }
 
 .statSub {
@@ -79,23 +96,15 @@
 	margin-top: v.$space-1;
 }
 
-.statAccent-blue {
-	border-top: 2px solid v.$color-status-open;
-}
-.statAccent-amber {
-	border-top: 2px solid v.$color-status-in-progress;
-}
-.statAccent-red {
-	border-top: 2px solid v.$color-priority-critical;
-}
-.statAccent-green {
-	border-top: 2px solid v.$color-status-done;
-}
+.statAccent-blue  { border-top: 2px solid v.$color-status-open; }
+.statAccent-amber { border-top: 2px solid v.$color-status-in-progress; }
+.statAccent-red   { border-top: 2px solid v.$color-priority-critical; }
+.statAccent-green { border-top: 2px solid v.$color-status-done; }
 
 // ─── Chart grid ──────────────────────────────────────────────────────────────
 .chartRow {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: 1fr;
 	gap: v.$space-4;
 
 	@include m.respond-to("lg") {
@@ -105,19 +114,28 @@
 
 .chartCard {
 	@include m.surface(1);
-	padding: v.$space-5;
+	padding: v.$space-4;
 	display: flex;
 	flex-direction: column;
 	gap: v.$space-4;
-	min-height: 320px;
+	min-height: 280px;
+
+	@include m.respond-to("md") {
+		padding: v.$space-5;
+		min-height: 320px;
+	}
 }
 
 .chartCardFull {
 	@include m.surface(1);
-	padding: v.$space-5;
+	padding: v.$space-4;
 	display: flex;
 	flex-direction: column;
 	gap: v.$space-4;
+
+	@include m.respond-to("md") {
+		padding: v.$space-5;
+	}
 }
 
 .chartTitle {

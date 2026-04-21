@@ -12,12 +12,21 @@ interface HeaderProps {
 
 export function Header({ title = 'Tasks' }: HeaderProps) {
 	const router = useRouter();
-	const { toggleSidebar } = useUiStore();
+	const { toggleSidebar, toggleMobileSidebar } = useUiStore();
+
+	function handleToggle() {
+		// On mobile (< 768px) open/close the drawer; on desktop collapse the sidebar
+		if (window.innerWidth < 768) {
+			toggleMobileSidebar();
+		} else {
+			toggleSidebar();
+		}
+	}
 
 	return (
 		<header className={styles.header}>
 			<div className={styles.left}>
-				<button className={styles.toggleBtn} onClick={toggleSidebar} aria-label="Toggle sidebar">
+				<button className={styles.toggleBtn} onClick={handleToggle} aria-label="Toggle sidebar">
 					<PanelLeft size={18} />
 				</button>
 				{title && <h1 className={styles.pageTitle}>{title}</h1>}
@@ -29,7 +38,7 @@ export function Header({ title = 'Tasks' }: HeaderProps) {
 					icon={<Plus size={14} />}
 					onClick={() => router.push('/tasks/new')}
 				>
-					New Task
+					<span className={styles.btnLabel}>New Task</span>
 				</Button>
 
 				<div className={styles.userMenu}>
