@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header/Header';
-import { TaskForm } from '@/components/tasks/TaskForm/TaskForm';
+import { TaskEditView } from '@/components/tasks/TaskEditView/TaskEditView';
 import styles from '../tasks.module.scss';
 
 interface Props {
@@ -18,7 +18,7 @@ export default async function TaskPage({ params }: Props) {
 		<>
 			<Header title="Task" />
 			<main className={styles.main}>
-				<TaskForm taskId={id} />
+				<TaskEditView taskId={id} />
 			</main>
 		</>
 	);

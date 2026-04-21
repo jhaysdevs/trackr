@@ -10,7 +10,6 @@ import {
 	type KeyboardEvent,
 	type DragEvent,
 } from 'react';
-import Link from 'next/link';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -19,6 +18,7 @@ import { useTasks, taskKeys } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { tasksApi } from '@/lib/api/tasks';
 import { Badge } from '@/components/ui/Badge/Badge';
+import { TaskDetailModal } from '@/components/tasks/TaskDetailModal/TaskDetailModal';
 import { formatDate, cn } from '@/lib/utils';
 import type { List, Task, TaskPriority, TaskType } from '@/types';
 import styles from './KanbanBoard.module.scss';
@@ -106,24 +106,24 @@ function MultiSelectFilter<T extends string>({
 	);
 }
 
-// ─── Board card ───────────────────────────────────────────────────────────────
+// ─── Kanban task row (draggable; opens task editor in a modal from the board) ─
 
-function BoardCard({
+function KanbanTaskCard({
 	task,
 	listId,
-	isDragging,
-	onDragStart,
-	onDragOver,
-	onDrop,
-	onDragEnd,
+	onSelectTask,
+	onTaskDragStart,
+	onTaskDragOver,
+	onTaskDrop,
+	onTaskDragEnd,
 }: {
 	task: Task;
 	listId: string;
-	isDragging: boolean;
-	onDragStart: (taskId: string, e: DragEvent) => void;
-	onDragOver: (taskId: string, listId: string, e: DragEvent) => void;
-	onDrop: (taskId: string, listId: string, e: DragEvent) => void;
-	onDragEnd: () => void;
+	onSelectTask: (taskId: string) => void;
+	onTaskDragStart: (taskId: string, e: DragEvent) => void;
+	onTaskDragOver: (taskId: string, listId: string, e: DragEvent) => void;
+	onTaskDrop: (taskId: string, listId: string, e: DragEvent) => void;
+	onTaskDragEnd: () => void;
 }) {
 	const isOverdue =
 		task.dueDate &&
@@ -132,34 +132,37 @@ function BoardCard({
 		task.status !== 'closed';
 
 	return (
-		<Link
-			href={`/tasks/${task.id}`}
-			className={cn(styles.card, isDragging && styles.cardDragging)}
+		<div
+			role="button"
+			tabIndex={0}
+			className={styles.taskCard}
 			draggable
-			onDragStart={(e) => onDragStart(task.id, e)}
-			onDragOver={(e) => onDragOver(task.id, listId, e)}
-			onDrop={(e) => onDrop(task.id, listId, e)}
-			onDragEnd={onDragEnd}
-			onClick={(e) => {
-				if ((e.currentTarget as HTMLElement).getAttribute('data-dragging') === 'true') {
+			onDragStart={(e) => onTaskDragStart(task.id, e)}
+			onDragOver={(e) => onTaskDragOver(task.id, listId, e)}
+			onDrop={(e) => onTaskDrop(task.id, listId, e)}
+			onDragEnd={onTaskDragEnd}
+			onClick={() => onSelectTask(task.id)}
+			onKeyDown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault();
+					onSelectTask(task.id);
 				}
 			}}
 		>
-			<div className={styles.cardTop}>
-				<span className={styles.cardNumber}>#{task.number}</span>
+			<div className={styles.taskCardTop}>
+				<span className={styles.taskCardNumber}>#{task.number}</span>
 				<Badge variant={{ kind: 'type', value: task.type }} />
 			</div>
-			<p className={styles.cardTitle}>{task.title}</p>
-			<div className={styles.cardFooter}>
+			<p className={styles.taskCardTitle}>{task.title}</p>
+			<div className={styles.taskCardFooter}>
 				<Badge variant={{ kind: 'priority', value: task.priority }} />
 				{task.dueDate && (
-					<span className={cn(styles.dueDate, isOverdue && styles.overdue)}>
+					<span className={cn(styles.taskDueDate, isOverdue && styles.taskDueDateOverdue)}>
 						{formatDate(task.dueDate as unknown as string, 'short')}
 					</span>
 				)}
 			</div>
-		</Link>
+		</div>
 	);
 }
 
@@ -178,7 +181,7 @@ function ColumnHeader({
 	onFinishEdit,
 	onCancelEdit,
 	onDelete,
-	onAddCard,
+	onAddTask,
 }: {
 	list: List;
 	count: number;
@@ -192,7 +195,7 @@ function ColumnHeader({
 	onFinishEdit: (name: string) => void;
 	onCancelEdit: () => void;
 	onDelete: () => void;
-	onAddCard: () => void;
+	onAddTask: () => void;
 }) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [draft, setDraft] = useState(list.name);
@@ -249,7 +252,7 @@ function ColumnHeader({
 			</div>
 
 			<div className={styles.columnActions}>
-				<button className={styles.iconBtn} title="Add task" onClick={onAddCard}>
+				<button className={styles.iconBtn} title="Add task" onClick={onAddTask}>
 					<Plus size={13} />
 				</button>
 				<button className={cn(styles.iconBtn, styles.deleteBtn)} title="Delete list" onClick={onDelete}>
@@ -314,15 +317,17 @@ export function KanbanBoard() {
 	const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
 	// ── Drag state ──
-	// dragType: 'list' = dragging a column header, 'card' = dragging a task card
+	// dragType: 'list' = dragging a column header, 'card' = dragging a kanban task row
 	const dragTypeRef = useRef<'list' | 'card' | null>(null);
 	const draggingListIdRef = useRef<string | null>(null);
 	const draggingTaskIdRef = useRef<string | null>(null);
-	// For card insertion indicator: ref used in drop handler, state used for rendering
-	const cardTargetRef = useRef<{ id: string; before: boolean } | null>(null);
+	// Drop indicator between tasks: ref for handlers, state for render
+	const taskDropTargetRef = useRef<{ id: string; before: boolean } | null>(null);
+	const skipNextTaskClickRef = useRef(false);
+	const [modalTaskId, setModalTaskId] = useState<string | null>(null);
 	const [dragOverListId, setDragOverListId] = useState<string | null>(null);
 	const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
-	const [cardTarget, setCardTarget] = useState<{ id: string; before: boolean } | null>(null);
+	const [taskDropTarget, setTaskDropTarget] = useState<{ id: string; before: boolean } | null>(null);
 
 	// ── Helpers ──
 	const tasksByList = useCallback(
@@ -333,9 +338,17 @@ export function KanbanBoard() {
 		[filteredTasks]
 	);
 
-	function setCardIndicator(val: { id: string; before: boolean } | null) {
-		cardTargetRef.current = val;
-		setCardTarget(val);
+	function setTaskDropIndicator(val: { id: string; before: boolean } | null) {
+		taskDropTargetRef.current = val;
+		setTaskDropTarget(val);
+	}
+
+	function handleSelectTask(taskId: string) {
+		if (skipNextTaskClickRef.current) {
+			skipNextTaskClickRef.current = false;
+			return;
+		}
+		setModalTaskId(taskId);
 	}
 
 	// ── Column drag handlers ──
@@ -368,15 +381,15 @@ export function KanbanBoard() {
 		resetDrag();
 	}
 
-	// ── Card drag handlers ──
-	function onCardDragStart(taskId: string, e: DragEvent) {
+	// ── Task row drag handlers ──
+	function onTaskDragStart(taskId: string, e: DragEvent) {
 		dragTypeRef.current = 'card';
 		draggingTaskIdRef.current = taskId;
 		e.dataTransfer.effectAllowed = 'move';
 		e.stopPropagation();
 	}
 
-	function onCardDragOver(taskId: string, listId: string, e: DragEvent) {
+	function onTaskDragOver(taskId: string, listId: string, e: DragEvent) {
 		if (dragTypeRef.current !== 'card') return;
 		if (taskId === draggingTaskIdRef.current) return;
 		e.preventDefault();
@@ -389,16 +402,16 @@ export function KanbanBoard() {
 		const srcTask = tasks.find((t) => t.id === draggingTaskIdRef.current);
 		const isCrossColumn = srcTask?.listId !== listId;
 		setDragOverColumnId(isCrossColumn ? listId : null);
-		setCardIndicator({ id: taskId, before });
+		setTaskDropIndicator({ id: taskId, before });
 	}
 
-	function onCardDrop(taskId: string, listId: string, e: DragEvent) {
+	function onTaskDrop(taskId: string, listId: string, e: DragEvent) {
 		e.preventDefault();
 		e.stopPropagation();
 		const srcTaskId = draggingTaskIdRef.current;
 		if (!srcTaskId || dragTypeRef.current !== 'card') return;
 
-		const target = cardTargetRef.current;
+		const target = taskDropTargetRef.current;
 		if (!target) { resetDrag(); return; }
 
 		const srcTask = tasks.find((t) => t.id === srcTaskId);
@@ -432,7 +445,7 @@ export function KanbanBoard() {
 		e.preventDefault();
 		e.dataTransfer.dropEffect = 'move';
 		setDragOverColumnId(listId);
-		setCardIndicator(null);
+		setTaskDropIndicator(null);
 	}
 
 	function onColumnBodyDrop(listId: string, e: DragEvent) {
@@ -449,12 +462,15 @@ export function KanbanBoard() {
 	}
 
 	function resetDrag() {
+		if (dragTypeRef.current === 'card') {
+			skipNextTaskClickRef.current = true;
+		}
 		dragTypeRef.current = null;
 		draggingListIdRef.current = null;
 		draggingTaskIdRef.current = null;
 		setDragOverListId(null);
 		setDragOverColumnId(null);
-		setCardIndicator(null);
+		setTaskDropIndicator(null);
 	}
 
 	// ── Column CRUD ──
@@ -485,6 +501,7 @@ export function KanbanBoard() {
 	const isPending = listsLoading || tasksLoading;
 
 	return (
+		<>
 		<div className={styles.root} onClick={() => setConfirmDeleteId(null)}>
 			{/* Toolbar */}
 			<div className={styles.toolbar}>
@@ -527,7 +544,7 @@ export function KanbanBoard() {
 			{/* Board */}
 			<div
 				className={styles.board}
-				onDragLeave={() => { setDragOverListId(null); setDragOverColumnId(null); setCardIndicator(null); }}
+				onDragLeave={() => { setDragOverListId(null); setDragOverColumnId(null); setTaskDropIndicator(null); }}
 			>
 				{isPending
 					? Array.from({ length: 5 }).map((_, i) => (
@@ -542,7 +559,7 @@ export function KanbanBoard() {
 									key={list.id}
 									className={cn(
 										styles.column,
-										dragOverColumnId === list.id && styles.columnCardDragOver,
+										dragOverColumnId === list.id && styles.columnTaskDragOver,
 									)}
 								>
 									{isConfirmingDelete ? (
@@ -583,7 +600,7 @@ export function KanbanBoard() {
 												onFinishEdit={(name) => handleRename(list.id, name)}
 												onCancelEdit={() => setEditingListId(null)}
 												onDelete={() => handleDelete(list.id)}
-												onAddCard={() => router.push('/tasks/new')}
+												onAddTask={() => router.push('/tasks/new')}
 											/>
 											<div
 												className={styles.columnBody}
@@ -595,20 +612,20 @@ export function KanbanBoard() {
 												) : (
 													colTasks.map((task) => (
 														<Fragment key={task.id}>
-															{cardTarget?.id === task.id && cardTarget.before && (
-																<div className={styles.insertIndicator} />
+															{taskDropTarget?.id === task.id && taskDropTarget.before && (
+																<div className={styles.taskDropIndicator} />
 															)}
-															<BoardCard
+															<KanbanTaskCard
 																task={task}
 																listId={list.id}
-																isDragging={draggingTaskIdRef.current === task.id}
-																onDragStart={onCardDragStart}
-																onDragOver={onCardDragOver}
-																onDrop={onCardDrop}
-																onDragEnd={resetDrag}
+																onSelectTask={handleSelectTask}
+																onTaskDragStart={onTaskDragStart}
+																onTaskDragOver={onTaskDragOver}
+																onTaskDrop={onTaskDrop}
+																onTaskDragEnd={resetDrag}
 															/>
-															{cardTarget?.id === task.id && !cardTarget.before && (
-																<div className={styles.insertIndicator} />
+															{taskDropTarget?.id === task.id && !taskDropTarget.before && (
+																<div className={styles.taskDropIndicator} />
 															)}
 														</Fragment>
 													))
@@ -629,5 +646,9 @@ export function KanbanBoard() {
 				)}
 			</div>
 		</div>
+		{modalTaskId && (
+			<TaskDetailModal taskId={modalTaskId} onClose={() => setModalTaskId(null)} />
+		)}
+		</>
 	);
 }

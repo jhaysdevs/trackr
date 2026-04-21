@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2, X } from 'lucide-react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
@@ -105,9 +105,12 @@ function toDateInputValue(d: unknown): string {
 
 interface TaskFormProps {
 	taskId?: string;
+	/** When set with `onDismiss`, the header uses Close instead of navigating back to the task list. */
+	variant?: 'page' | 'modal';
+	onDismiss?: () => void;
 }
 
-export function TaskForm({ taskId }: TaskFormProps) {
+export function TaskForm({ taskId, variant = 'page', onDismiss }: TaskFormProps) {
 	const router = useRouter();
 	const isEdit = !!taskId;
 	const [confirmDelete, setConfirmDelete] = useState(false);
@@ -190,7 +193,8 @@ export function TaskForm({ taskId }: TaskFormProps) {
 	async function handleDelete() {
 		if (!taskId) return;
 		await deleteMutation.mutateAsync(taskId);
-		router.push('/tasks');
+		if (onDismiss) onDismiss();
+		else router.push('/tasks');
 	}
 
 	if (isEdit && taskLoading) {
@@ -215,10 +219,10 @@ export function TaskForm({ taskId }: TaskFormProps) {
 				<Button
 					variant="ghost"
 					size="sm"
-					icon={<ArrowLeft size={14} />}
-					onClick={() => router.push('/tasks')}
+					icon={variant === 'modal' && onDismiss ? <X size={14} /> : <ArrowLeft size={14} />}
+					onClick={() => (variant === 'modal' && onDismiss ? onDismiss() : router.push('/tasks'))}
 				>
-					Back to Tasks
+					{variant === 'modal' && onDismiss ? 'Close' : 'Back to Tasks'}
 				</Button>
 			</div>
 		);
@@ -229,14 +233,15 @@ export function TaskForm({ taskId }: TaskFormProps) {
 	return (
 		<div className={styles.container}>
 			<div className={styles.topBar}>
-				<Button
-					variant="ghost"
-					size="sm"
-					icon={<ArrowLeft size={14} />}
-					onClick={() => router.push('/tasks')}
-				>
-					Tasks
-				</Button>
+				{variant === 'modal' && onDismiss ? (
+					<Button variant="ghost" size="sm" icon={<X size={14} />} onClick={onDismiss}>
+						Close
+					</Button>
+				) : (
+					<Button variant="ghost" size="sm" icon={<ArrowLeft size={14} />} onClick={() => router.push('/tasks')}>
+						Tasks
+					</Button>
+				)}
 
 				{isEdit && task && (
 					<div className={styles.taskMeta}>

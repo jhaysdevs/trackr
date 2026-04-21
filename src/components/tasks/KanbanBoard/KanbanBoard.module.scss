@@ -334,7 +334,7 @@
 	background: color-mix(in srgb, v.$color-accent 10%, v.$color-bg-raised);
 }
 
-.columnCardDragOver {
+.columnTaskDragOver {
 	border-color: v.$color-accent;
 	background: color-mix(in srgb, v.$color-accent 6%, v.$color-bg-surface);
 }
@@ -411,9 +411,9 @@
 	padding: v.$space-6 0;
 }
 
-// ─── Card ─────────────────────────────────────────────────────────────────────
+// ─── Kanban task row ──────────────────────────────────────────────────────────
 
-.card {
+.taskCard {
 	display: flex;
 	flex-direction: column;
 	gap: v.$space-2;
@@ -430,22 +430,28 @@
 		border-color: v.$color-border-focus;
 		background: v.$color-bg-hover;
 	}
+
+	&:focus-visible {
+		outline: none;
+		border-color: v.$color-border-focus;
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
 }
 
-.cardTop {
+.taskCardTop {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: v.$space-2;
 }
 
-.cardNumber {
+.taskCardNumber {
 	font-size: v.$font-size-xs;
 	color: v.$color-text-muted;
 	font-family: v.$font-mono;
 }
 
-.cardTitle {
+.taskCardTitle {
 	font-size: v.$font-size-sm;
 	font-weight: v.$font-weight-medium;
 	color: v.$color-text-primary;
@@ -456,7 +462,7 @@
 	overflow: hidden;
 }
 
-.cardFooter {
+.taskCardFooter {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -464,14 +470,21 @@
 	flex-wrap: wrap;
 }
 
-.dueDate {
+.taskDueDate {
 	font-size: v.$font-size-xs;
 	color: v.$color-text-muted;
 	flex-shrink: 0;
 }
 
-.overdue {
+.taskDueDateOverdue {
 	color: v.$color-danger;
+}
+
+.taskDropIndicator {
+	height: 2px;
+	margin: v.$space-1 0;
+	background: v.$color-accent;
+	border-radius: v.$radius-full;
 }
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────

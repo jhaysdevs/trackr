@@ -1,0 +1,33 @@
+@use "../../../styles/variables" as v;
+@use "../../../styles/mixins" as m;
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: v.$z-modal;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: v.$space-4;
+	background: rgba(0, 0, 0, 0.55);
+}
+
+.dialog {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	max-width: v.$content-max-width;
+	max-height: min(92vh, 900px);
+	overflow: hidden;
+	background: v.$color-bg-base;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-lg;
+	box-shadow: v.$shadow-xl;
+}
+
+.body {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	@include m.scrollbar-thin;
+}
