@@ -15,7 +15,7 @@ export const createTaskSchema = z.object({
 			'closed',
 		])
 		.default('backlog'),
-	priority: z.enum(['critical', 'high', 'medium', 'low', 'trivial']).default('medium'),
+	priority: z.enum(['critical', 'high', 'medium', 'low']).default('medium'),
 	type: z
 		.enum([
 			'bug',

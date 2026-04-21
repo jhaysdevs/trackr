@@ -156,7 +156,7 @@
 			"id": "iss_w04",
 			"number": 4,
 			"title": "Dark mode contrast fails WCAG AA on badge text",
-			"description": "Several badge variants (status: blocked, priority: trivial) have insufficient contrast ratios in dark mode. Need to audit all badge colour combinations against WCAG 2.1 AA (4.5:1).",
+			"description": "Several badge variants (status: blocked, priority: low) have insufficient contrast ratios in dark mode. Need to audit all badge colour combinations against WCAG 2.1 AA (4.5:1).",
 			"status": "code_review",
 			"priority": "high",
 			"type": "accessibility",

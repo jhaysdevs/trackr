@@ -36,7 +36,6 @@ const PRIORITY_OPTIONS: Array<{ value: TaskPriority; label: string }> = [
 	{ value: 'high', label: 'High' },
 	{ value: 'medium', label: 'Medium' },
 	{ value: 'low', label: 'Low' },
-	{ value: 'trivial', label: 'Trivial' },
 ];
 
 const TYPE_OPTIONS: Array<{ value: TaskType; label: string }> = [

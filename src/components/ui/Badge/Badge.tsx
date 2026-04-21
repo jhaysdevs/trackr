@@ -29,7 +29,6 @@ const PRIORITY_LABEL: Record<TaskPriority, string> = {
 	high: 'High',
 	medium: 'Medium',
 	low: 'Low',
-	trivial: 'Trivial',
 };
 
 const TYPE_LABEL: Record<TaskType, string> = {

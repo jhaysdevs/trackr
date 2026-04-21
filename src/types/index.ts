@@ -10,7 +10,7 @@ export type TaskStatus =
 	| 'resolved'
 	| 'closed';
 
-export type TaskPriority = 'critical' | 'high' | 'medium' | 'low' | 'trivial';
+export type TaskPriority = 'critical' | 'high' | 'medium' | 'low';
 
 export type TaskType =
 	| 'bug'

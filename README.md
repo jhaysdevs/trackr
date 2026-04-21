@@ -95,7 +95,7 @@ projects
 
 **Task types:** `bug`, `feature`, `enhancement`, `refactor`, `tech_debt`, `documentation`, `ui_ux`, `performance`, `security`, `devops`, `testing`, `spike`, `integration`, `accessibility`
 
-**Priority levels:** `critical`, `high`, `medium`, `low`, `trivial`
+**Priority levels:** `critical`, `high`, `medium`, `low`
 
 ## State Architecture
 

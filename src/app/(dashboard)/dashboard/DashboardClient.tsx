@@ -25,7 +25,6 @@ const PRIORITY_META: Record<TaskPriority, { label: string; color: string }> = {
 	high: { label: 'High', color: '#f97316' },
 	medium: { label: 'Medium', color: '#f59e0b' },
 	low: { label: 'Low', color: '#6b7280' },
-	trivial: { label: 'Trivial', color: '#374151' },
 };
 
 const TYPE_META: Record<TaskType, { label: string; color: string }> = {

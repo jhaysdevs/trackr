@@ -52,7 +52,6 @@ const SORT_PRIORITY: Record<string, number> = {
 	high: 1,
 	medium: 2,
 	low: 3,
-	trivial: 4,
 };
 
 export const storage = {
