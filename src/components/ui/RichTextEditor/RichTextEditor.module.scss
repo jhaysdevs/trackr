@@ -1,0 +1,143 @@
+@use "../../../styles/variables" as v;
+
+.root {
+	width: 100%;
+	background: v.$color-bg-raised;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	transition:
+		border-color v.$transition-base,
+		box-shadow v.$transition-base;
+
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-border 80%, transparent);
+	}
+
+	&:focus-within {
+		outline: none;
+		border-color: v.$color-border-focus;
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
+}
+
+.toolbar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: v.$space-2;
+	padding: v.$space-2;
+	border-bottom: 1px solid v.$color-border;
+}
+
+.toolbarDivider {
+	width: 1px;
+	height: 18px;
+	background: v.$color-border;
+	margin: 0 v.$space-1;
+}
+
+.toolbarBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 30px;
+	height: 28px;
+	padding: 0 v.$space-2;
+	border-radius: v.$radius-sm;
+	font-size: v.$font-size-xs;
+	font-weight: v.$font-weight-semibold;
+	color: v.$color-text-secondary;
+	background: transparent;
+	transition:
+		background v.$transition-base,
+		color v.$transition-base;
+
+	&:hover {
+		background: v.$color-bg-overlay;
+		color: v.$color-text-primary;
+	}
+
+	&[data-active="true"] {
+		background: v.$color-accent-muted;
+		color: v.$color-accent;
+	}
+}
+
+.toolbarBtnItalic {
+	font-family: ui-serif, Georgia, 'Times New Roman', Times, serif;
+}
+
+.toolbarIcon {
+	display: block;
+	flex-shrink: 0;
+}
+
+.editorContent {
+	min-height: var(--rte-min-height, 140px);
+	padding: v.$space-3;
+	color: v.$color-text-primary;
+	font-size: v.$font-size-sm;
+	line-height: v.$line-height-normal;
+
+	&:focus {
+		outline: none;
+	}
+
+	p {
+		margin: 0;
+	}
+
+	ul,
+	ol {
+		padding-left: v.$space-5;
+		margin: v.$space-2 0;
+	}
+
+	ul {
+		list-style: disc;
+	}
+
+	ol {
+		list-style: decimal;
+	}
+
+	li {
+		margin: v.$space-1 0;
+	}
+
+	li::marker {
+		color: v.$color-text-secondary;
+	}
+
+	pre {
+		margin: v.$space-2 0;
+		padding: v.$space-3;
+		background: v.$color-bg-overlay;
+		border: 1px solid v.$color-border;
+		border-radius: v.$radius-sm;
+		overflow-x: auto;
+		font-family: v.$font-mono;
+		font-size: v.$font-size-xs;
+	}
+
+	code {
+		font-family: v.$font-mono;
+		font-size: 0.9em;
+		padding: 0.1em 0.35em;
+		background: v.$color-bg-overlay;
+		border-radius: v.$radius-sm;
+	}
+
+	pre code {
+		padding: 0;
+		background: transparent;
+		border-radius: 0;
+	}
+
+	h2 {
+		margin: v.$space-2 0 v.$space-1;
+		font-size: v.$font-size-lg;
+		font-weight: v.$font-weight-semibold;
+		line-height: v.$line-height-tight;
+	}
+}

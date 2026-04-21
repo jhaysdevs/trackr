@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
 import { Badge } from '@/components/ui/Badge/Badge';
+import { RichTextEditor } from '@/components/ui/RichTextEditor/RichTextEditor';
 import { useTask, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import type { TaskStatus, TaskPriority, TaskType } from '@/types';
@@ -32,7 +33,7 @@ const formSchema = z.object({
 			'closed',
 		])
 		.optional(),
-	priority: z.enum(['critical', 'high', 'medium', 'low', 'trivial']).optional(),
+	priority: z.enum(['critical', 'high', 'medium', 'low']).optional(),
 	type: z
 		.enum([
 			'bug',
@@ -73,7 +74,6 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
 	{ value: 'high', label: 'High' },
 	{ value: 'medium', label: 'Medium' },
 	{ value: 'low', label: 'Low' },
-	{ value: 'trivial', label: 'Trivial' },
 ];
 
 const TYPE_OPTIONS: { value: TaskType; label: string }[] = [
@@ -149,6 +149,7 @@ export function TaskForm({ taskId }: TaskFormProps) {
 	}, [task, form]);
 
 	const watchedProjectId = form.watch('projectId');
+	const watchedDescription = form.watch('description') ?? '';
 	const project = projects.find((p) => p.id === watchedProjectId);
 
 	async function onSubmit(data: FormValues) {
@@ -269,12 +270,12 @@ export function TaskForm({ taskId }: TaskFormProps) {
 						<label className={styles.label} htmlFor="description">
 							Description
 						</label>
-						<textarea
+						<RichTextEditor
 							id="description"
-							className={styles.textarea}
-							placeholder="Detailed description, reproduction steps, acceptance criteria…"
-							rows={5}
-							{...form.register('description')}
+							value={watchedDescription}
+							onChange={(html) =>
+								form.setValue('description', html, { shouldDirty: true, shouldValidate: true })
+							}
 						/>
 					</div>
 
