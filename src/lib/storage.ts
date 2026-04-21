@@ -4,7 +4,7 @@ import type { CreateProjectInput, UpdateProjectInput } from '@/lib/validations/p
 import { createId, slugify } from '@/lib/utils';
 import seedData from '@/data/seed.json';
 
-const STORAGE_KEY = 'trackr_v1';
+const STORAGE_KEY = 'trackr_v4';
 
 interface Store {
 	tasks: Task[];
