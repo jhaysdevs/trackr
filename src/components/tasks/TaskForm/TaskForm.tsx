@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Trash2, X } from 'lucide-react';
 import { z } from 'zod';
@@ -13,11 +14,17 @@ import { RichTextEditor } from '@/components/ui/RichTextEditor/RichTextEditor';
 import { useTask, useTasks, useCreateTask, useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { useProjects } from '@/hooks/useProjects';
+import { buildBoardUrl } from '@/lib/boardSearchParams';
 import {
 	buildDefaultTaskDescriptionHtml,
 	isHtmlDescriptionEmpty,
 	pickRelatedTaskTitles,
 } from '@/lib/taskDescriptionTemplates';
+import {
+	TASK_PRIORITY_LABEL,
+	TASK_STATUS_LABEL,
+	TASK_TYPE_LABEL,
+} from '@/lib/taskLabels';
 import type { Task, TaskStatus, TaskPriority, TaskType } from '@/types';
 import styles from './TaskForm.module.scss';
 
@@ -305,9 +312,30 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 					</h1>
 					{isEdit && task && (
 						<div className={styles.badgeRow}>
-							<Badge variant={{ kind: 'status', value: task.status }} />
-							<Badge variant={{ kind: 'priority', value: task.priority }} />
-							<Badge variant={{ kind: 'type', value: task.type }} />
+							<Link
+								href={buildBoardUrl({
+									statuses: [task.status],
+									focusColumn: task.status,
+								})}
+								className={styles.boardBadgeLink}
+								title={`Open board · ${TASK_STATUS_LABEL[task.status]} column`}
+							>
+								<Badge variant={{ kind: 'status', value: task.status }} />
+							</Link>
+							<Link
+								href={buildBoardUrl({ priorities: [task.priority] })}
+								className={styles.boardBadgeLink}
+								title={`Open board filtered by priority: ${TASK_PRIORITY_LABEL[task.priority]}`}
+							>
+								<Badge variant={{ kind: 'priority', value: task.priority }} />
+							</Link>
+							<Link
+								href={buildBoardUrl({ types: [task.type] })}
+								className={styles.boardBadgeLink}
+								title={`Open board filtered by type: ${TASK_TYPE_LABEL[task.type]}`}
+							>
+								<Badge variant={{ kind: 'type', value: task.type }} />
+							</Link>
 						</div>
 					)}
 				</div>

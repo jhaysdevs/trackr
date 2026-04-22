@@ -79,6 +79,20 @@
 	flex-wrap: wrap;
 }
 
+.boardBadgeLink {
+	text-decoration: none;
+	cursor: pointer;
+	border-radius: v.$radius-full;
+
+	&:focus {
+		outline: none;
+	}
+
+	&:focus-visible {
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
+}
+
 // ─── Fields ───────────────────────────────────────────────────────────────────
 
 .fields {
