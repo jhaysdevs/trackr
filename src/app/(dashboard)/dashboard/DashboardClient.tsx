@@ -8,6 +8,7 @@ import { buildBoardUrl } from '@/lib/boardSearchParams';
 import { DonutChart, type DonutSlice } from '@/components/charts/DonutChart/DonutChart';
 import { HBarChart, type BarDatum } from '@/components/charts/HBarChart/HBarChart';
 import type { TaskStatus, TaskPriority, TaskType, StatsBucket } from '@/types';
+import { cn } from '@/lib/utils';
 import styles from './dashboard.module.scss';
 
 // ─── Colour maps ─────────────────────────────────────────────────────────────
@@ -117,88 +118,94 @@ export function DashboardClient() {
 		: [];
 
 	return (
-		<main className={styles.page}>
-			<div className={styles.inner}>
+		<main className={styles.dashboardRoot}>
+			<div className={styles.dashboardLayout}>
 				{stats?.demo && (
-					<div className={styles.demoBanner}>
-						<Info size={14} />
-						<span>
+					<aside className={styles.sampleDataBanner}>
+						<Info size={14} aria-hidden />
+						<p>
 							<strong>Sample data</strong> — this is seed data loaded into localStorage on first run.
-						</span>
-					</div>
+						</p>
+					</aside>
 				)}
 
-				{/* ── Summary ── */}
-				<div className={styles.statGrid}>
-					<div className={`${styles.statCard} ${styles['statAccent-blue']}`}>
-						<span className={styles.statLabel}>Total Tasks</span>
-						<span className={styles.statValue}>
+				<section className={styles.execSummaryGrid} aria-label="Workload overview">
+					<div className={cn(styles.kpiTile, styles.kpiTileAccentPipeline)}>
+						<span className={styles.kpiLabel}>Total Tasks</span>
+						<span className={styles.kpiValue}>
 							{isPending ? '—' : (stats?.totals.total ?? 0).toLocaleString()}
 						</span>
-						<span className={styles.statSub}>across all projects</span>
+						<span className={styles.kpiHint}>across all projects</span>
 					</div>
-					<div className={`${styles.statCard} ${styles['statAccent-amber']}`}>
-						<span className={styles.statLabel}>In Progress</span>
-						<span className={styles.statValue}>
+					<div className={cn(styles.kpiTile, styles.kpiTileAccentThroughput)}>
+						<span className={styles.kpiLabel}>In Progress</span>
+						<span className={styles.kpiValue}>
 							{isPending ? '—' : (stats?.totals.inProgress ?? 0).toLocaleString()}
 						</span>
-						<span className={styles.statSub}>actively being worked</span>
+						<span className={styles.kpiHint}>actively being worked</span>
 					</div>
-					<div className={`${styles.statCard} ${styles['statAccent-red']}`}>
-						<span className={styles.statLabel}>Blocked</span>
-						<span className={styles.statValue}>
+					<div className={cn(styles.kpiTile, styles.kpiTileAccentRisk)}>
+						<span className={styles.kpiLabel}>Blocked</span>
+						<span className={styles.kpiValue}>
 							{isPending ? '—' : (stats?.totals.blocked ?? 0).toLocaleString()}
 						</span>
-						<span className={styles.statSub}>need attention</span>
+						<span className={styles.kpiHint}>need attention</span>
 					</div>
-					<div className={`${styles.statCard} ${styles['statAccent-green']}`}>
-						<span className={styles.statLabel}>Closed / Done</span>
-						<span className={styles.statValue}>
+					<div className={cn(styles.kpiTile, styles.kpiTileAccentDelivery)}>
+						<span className={styles.kpiLabel}>Closed / Done</span>
+						<span className={styles.kpiValue}>
 							{isPending ? '—' : (stats?.totals.closed ?? 0).toLocaleString()}
 						</span>
-						<span className={styles.statSub}>resolved &amp; shipped</span>
+						<span className={styles.kpiHint}>resolved &amp; shipped</span>
 					</div>
-				</div>
+				</section>
 
-				{/* ── Status + Priority donuts ── */}
-				<div className={styles.chartRow}>
-					<div className={styles.chartCard}>
-						<div className={styles.chartHeader}>
-							<h2 className={styles.chartTitle}>Tasks by Status</h2>
-							<p className={styles.chartSubtitle}>Distribution across workflow stages</p>
-						</div>
+				<div className={styles.workflowSplitRow}>
+					<section className={styles.distributionPanel} aria-labelledby="dash-status-heading">
+						<header className={styles.panelHeader}>
+							<h2 id="dash-status-heading" className={styles.panelHeading}>
+								Tasks by Status
+							</h2>
+							<p className={styles.panelLede}>Distribution across workflow stages</p>
+						</header>
 						{!isPending && (
 							<DonutChart
 								data={statusSlices}
 								onSliceClick={(slice) => goToBoardWithStatus(slice.id as TaskStatus)}
 							/>
 						)}
-					</div>
+					</section>
 
-					<div className={styles.chartCard}>
-						<div className={styles.chartHeader}>
-							<h2 className={styles.chartTitle}>Tasks by Priority</h2>
-							<p className={styles.chartSubtitle}>Severity and urgency breakdown</p>
-						</div>
+					<section className={styles.distributionPanel} aria-labelledby="dash-priority-heading">
+						<header className={styles.panelHeader}>
+							<h2 id="dash-priority-heading" className={styles.panelHeading}>
+								Tasks by Priority
+							</h2>
+							<p className={styles.panelLede}>Severity and urgency breakdown</p>
+						</header>
 						{!isPending && (
 							<DonutChart
 								data={prioritySlices}
 								onSliceClick={(slice) => goToBoardWithPriority(slice.id as TaskPriority)}
 							/>
 						)}
-					</div>
+					</section>
 				</div>
 
-				{/* ── Types bar chart ── */}
-				<div className={styles.chartCardFull}>
-					<div className={styles.chartHeader}>
-						<h2 className={styles.chartTitle}>Tasks by Type</h2>
-						<p className={styles.chartSubtitle}>Volume per work category</p>
-					</div>
+				<section
+					className={styles.distributionPanelWide}
+					aria-labelledby="dash-type-heading"
+				>
+					<header className={styles.panelHeader}>
+						<h2 id="dash-type-heading" className={styles.panelHeading}>
+							Tasks by Type
+						</h2>
+						<p className={styles.panelLede}>Volume per work category</p>
+					</header>
 					{!isPending && (
 						<HBarChart data={typeBars} onRowClick={(row) => goToBoardWithType(row.id as TaskType)} />
 					)}
-				</div>
+				</section>
 			</div>
 		</main>
 	);

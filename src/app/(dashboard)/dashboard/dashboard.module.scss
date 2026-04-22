@@ -1,7 +1,8 @@
 @use "../../../styles/variables" as v;
 @use "../../../styles/mixins" as m;
 
-.page {
+// Root layout (scrollable dashboard canvas)
+.dashboardRoot {
 	flex: 1;
 	overflow-y: auto;
 	padding: v.$space-4;
@@ -12,7 +13,7 @@
 	}
 }
 
-.inner {
+.dashboardLayout {
 	max-width: v.$content-max-width;
 	margin: 0 auto;
 	display: flex;
@@ -24,8 +25,8 @@
 	}
 }
 
-// ─── Demo banner ─────────────────────────────────────────────────────────────
-.demoBanner {
+// ─── Sample data notice ───────────────────────────────────────────────────────
+.sampleDataBanner {
 	@include m.flex-start;
 	gap: v.$space-2;
 	padding: v.$space-3 v.$space-4;
@@ -41,8 +42,8 @@
 	}
 }
 
-// ─── Summary row ─────────────────────────────────────────────────────────────
-.statGrid {
+// ─── Executive summary / KPI strip ───────────────────────────────────────────
+.execSummaryGrid {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: v.$space-3;
@@ -53,24 +54,27 @@
 	}
 }
 
-.statCard {
+.kpiTile {
 	@include m.surface(1);
 	padding: v.$space-3 v.$space-4;
 	display: flex;
 	flex-direction: column;
 	gap: v.$space-1;
-	transition: border-color v.$transition-base;
+	transition:
+		border-color 0.28s ease,
+		box-shadow 0.5s ease,
+		transform 0.28s ease;
 
 	@include m.respond-to("md") {
 		padding: v.$space-4 v.$space-5;
 	}
 
 	&:hover {
-		border-color: v.$color-border-focus;
+		transform: translateY(-2px);
 	}
 }
 
-.statLabel {
+.kpiLabel {
 	font-size: v.$font-size-xs;
 	font-weight: v.$font-weight-medium;
 	color: v.$color-text-muted;
@@ -78,7 +82,7 @@
 	letter-spacing: 0.06em;
 }
 
-.statValue {
+.kpiValue {
 	font-size: v.$font-size-2xl;
 	font-weight: v.$font-weight-bold;
 	color: v.$color-text-primary;
@@ -90,19 +94,123 @@
 	}
 }
 
-.statSub {
+.kpiHint {
 	font-size: v.$font-size-xs;
 	color: v.$color-text-muted;
 	margin-top: v.$space-1;
 }
 
-.statAccent-blue  { border-top: 2px solid v.$color-status-open; }
-.statAccent-amber { border-top: 2px solid v.$color-status-in-progress; }
-.statAccent-red   { border-top: 2px solid v.$color-priority-critical; }
-.statAccent-green { border-top: 2px solid v.$color-status-done; }
+// Accent rail — pipeline / throughput / risk / delivery (aligned to stat semantics)
+.kpiTileAccentPipeline {
+	border-top: 2px solid v.$color-status-open;
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-status-open 55%, v.$color-border);
+		box-shadow:
+			0 8px 30px color-mix(in srgb, v.$color-status-open 26%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-open 18%, transparent);
+		animation: kpi-pulse-pipeline 2.2s ease-in-out infinite alternate;
+	}
+}
 
-// ─── Chart grid ──────────────────────────────────────────────────────────────
-.chartRow {
+.kpiTileAccentThroughput {
+	border-top: 2px solid v.$color-status-in-progress;
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-status-in-progress 55%, v.$color-border);
+		box-shadow:
+			0 8px 30px color-mix(in srgb, v.$color-status-in-progress 26%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-in-progress 18%, transparent);
+		animation: kpi-pulse-throughput 2.2s ease-in-out infinite alternate;
+	}
+}
+
+.kpiTileAccentRisk {
+	border-top: 2px solid v.$color-priority-critical;
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-priority-critical 55%, v.$color-border);
+		box-shadow:
+			0 8px 30px color-mix(in srgb, v.$color-priority-critical 26%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-priority-critical 18%, transparent);
+		animation: kpi-pulse-risk 2.2s ease-in-out infinite alternate;
+	}
+}
+
+.kpiTileAccentDelivery {
+	border-top: 2px solid v.$color-status-done;
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-status-done 55%, v.$color-border);
+		box-shadow:
+			0 8px 30px color-mix(in srgb, v.$color-status-done 26%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-done 18%, transparent);
+		animation: kpi-pulse-delivery 2.2s ease-in-out infinite alternate;
+	}
+}
+
+@keyframes kpi-pulse-pipeline {
+	0% {
+		box-shadow:
+			0 4px 18px color-mix(in srgb, v.$color-status-open 16%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-open 12%, transparent);
+	}
+	100% {
+		box-shadow:
+			0 12px 40px color-mix(in srgb, v.$color-status-open 34%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-open 28%, transparent);
+	}
+}
+
+@keyframes kpi-pulse-throughput {
+	0% {
+		box-shadow:
+			0 4px 18px color-mix(in srgb, v.$color-status-in-progress 16%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-in-progress 12%, transparent);
+	}
+	100% {
+		box-shadow:
+			0 12px 40px color-mix(in srgb, v.$color-status-in-progress 34%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-in-progress 28%, transparent);
+	}
+}
+
+@keyframes kpi-pulse-risk {
+	0% {
+		box-shadow:
+			0 4px 18px color-mix(in srgb, v.$color-priority-critical 16%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-priority-critical 12%, transparent);
+	}
+	100% {
+		box-shadow:
+			0 12px 40px color-mix(in srgb, v.$color-priority-critical 34%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-priority-critical 28%, transparent);
+	}
+}
+
+@keyframes kpi-pulse-delivery {
+	0% {
+		box-shadow:
+			0 4px 18px color-mix(in srgb, v.$color-status-done 16%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-done 12%, transparent);
+	}
+	100% {
+		box-shadow:
+			0 12px 40px color-mix(in srgb, v.$color-status-done 34%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-status-done 28%, transparent);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.kpiTile:hover {
+		transform: none;
+	}
+	.kpiTileAccentPipeline:hover,
+	.kpiTileAccentThroughput:hover,
+	.kpiTileAccentRisk:hover,
+	.kpiTileAccentDelivery:hover {
+		animation: none;
+	}
+}
+
+// ─── Workflow distribution charts ─────────────────────────────────────────────
+.workflowSplitRow {
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: v.$space-4;
@@ -112,47 +220,78 @@
 	}
 }
 
-.chartCard {
+.distributionPanel {
 	@include m.surface(1);
 	padding: v.$space-4;
 	display: flex;
 	flex-direction: column;
 	gap: v.$space-4;
 	min-height: 280px;
+	transition:
+		border-color 0.28s ease,
+		box-shadow 0.45s ease,
+		transform 0.25s ease;
 
 	@include m.respond-to("md") {
 		padding: v.$space-5;
 		min-height: 320px;
 	}
+
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-accent 35%, v.$color-border);
+		box-shadow:
+			0 6px 28px color-mix(in srgb, v.$color-accent 14%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-accent 12%, transparent);
+		transform: translateY(-1px);
+	}
 }
 
-.chartCardFull {
+.distributionPanelWide {
 	@include m.surface(1);
 	padding: v.$space-4;
 	display: flex;
 	flex-direction: column;
 	gap: v.$space-4;
+	transition:
+		border-color 0.28s ease,
+		box-shadow 0.45s ease,
+		transform 0.25s ease;
 
 	@include m.respond-to("md") {
 		padding: v.$space-5;
 	}
+
+	&:hover {
+		border-color: color-mix(in srgb, v.$color-accent 35%, v.$color-border);
+		box-shadow:
+			0 8px 32px color-mix(in srgb, v.$color-accent 16%, transparent),
+			0 0 0 1px color-mix(in srgb, v.$color-accent 14%, transparent);
+		transform: translateY(-1px);
+	}
 }
 
-.chartTitle {
+.panelHeader {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.panelHeading {
 	font-size: v.$font-size-sm;
 	font-weight: v.$font-weight-semibold;
 	color: v.$color-text-primary;
 	line-height: 1;
 }
 
-.chartSubtitle {
+.panelLede {
 	font-size: v.$font-size-xs;
 	color: v.$color-text-muted;
 	margin-top: 2px;
 }
 
-.chartHeader {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
+@media (prefers-reduced-motion: reduce) {
+	.distributionPanel:hover,
+	.distributionPanelWide:hover {
+		transform: none;
+	}
 }
