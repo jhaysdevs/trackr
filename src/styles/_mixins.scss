@@ -1,4 +1,4 @@
-@use "variables" as v;
+@use 'variables' as v;
 
 // ─── Flex helpers ────────────────────────────────────────────────────────────
 @mixin flex-center {
@@ -78,27 +78,27 @@
 
 // ─── Breakpoints ─────────────────────────────────────────────────────────────
 @mixin respond-to($bp) {
-	@if $bp == "sm" {
+	@if $bp == 'sm' {
 		@media (min-width: 640px) {
 			@content;
 		}
 	}
-	@if $bp == "md" {
+	@if $bp == 'md' {
 		@media (min-width: 768px) {
 			@content;
 		}
 	}
-	@if $bp == "lg" {
+	@if $bp == 'lg' {
 		@media (min-width: 1024px) {
 			@content;
 		}
 	}
-	@if $bp == "xl" {
+	@if $bp == 'xl' {
 		@media (min-width: 1280px) {
 			@content;
 		}
 	}
-	@if $bp == "2xl" {
+	@if $bp == '2xl' {
 		@media (min-width: 1536px) {
 			@content;
 		}
@@ -107,7 +107,12 @@
 
 // ─── Skeleton loading ────────────────────────────────────────────────────────
 @mixin skeleton {
-	background: linear-gradient(90deg, v.$color-bg-raised 25%, v.$color-bg-overlay 50%, v.$color-bg-raised 75%);
+	background: linear-gradient(
+		90deg,
+		v.$color-bg-raised 25%,
+		v.$color-bg-overlay 50%,
+		v.$color-bg-raised 75%
+	);
 	background-size: 200% 100%;
 	animation: skeleton-shimmer 1.5s infinite;
 }

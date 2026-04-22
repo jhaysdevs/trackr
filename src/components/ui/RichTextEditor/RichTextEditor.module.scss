@@ -1,4 +1,4 @@
-@use "../../../styles/variables" as v;
+@use '../../../styles/variables' as v;
 
 .root {
 	width: 100%;
@@ -57,7 +57,7 @@
 		color: v.$color-text-primary;
 	}
 
-	&[data-active="true"] {
+	&[data-active='true'] {
 		background: v.$color-accent-muted;
 		color: v.$color-accent;
 	}

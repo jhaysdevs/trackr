@@ -1,5 +1,5 @@
-@use "../../../styles/variables" as v;
-@use "../../../styles/mixins" as m;
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
 
 // Root layout (scrollable dashboard canvas)
 .dashboardRoot {
@@ -8,7 +8,7 @@
 	padding: v.$space-4;
 	@include m.scrollbar-thin;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		padding: v.$space-6;
 	}
 }
@@ -20,7 +20,7 @@
 	flex-direction: column;
 	gap: v.$space-4;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		gap: v.$space-6;
 	}
 }
@@ -48,7 +48,7 @@
 	grid-template-columns: repeat(2, 1fr);
 	gap: v.$space-3;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		grid-template-columns: repeat(4, 1fr);
 		gap: v.$space-4;
 	}
@@ -65,7 +65,7 @@
 		box-shadow 0.5s ease,
 		transform 0.28s ease;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		padding: v.$space-4 v.$space-5;
 	}
 
@@ -98,7 +98,7 @@ button.kpiTile {
 	line-height: 1;
 	font-variant-numeric: tabular-nums;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		font-size: v.$font-size-3xl;
 	}
 }
@@ -224,7 +224,7 @@ button.kpiTile {
 	grid-template-columns: 1fr;
 	gap: v.$space-4;
 
-	@include m.respond-to("lg") {
+	@include m.respond-to('lg') {
 		grid-template-columns: 1fr 1fr;
 	}
 
@@ -253,7 +253,7 @@ button.kpiTile {
 		box-shadow 0.45s ease,
 		transform 0.25s ease;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		padding: v.$space-5;
 		min-height: 320px;
 	}
@@ -278,7 +278,7 @@ button.kpiTile {
 		box-shadow 0.45s ease,
 		transform 0.25s ease;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		padding: v.$space-5;
 	}
 

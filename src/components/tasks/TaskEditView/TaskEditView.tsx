@@ -12,7 +12,5 @@ export interface TaskEditViewProps {
  * Reusable task edit UI (same as `/tasks/[id]` page body). Use on a route or inside a modal.
  */
 export function TaskEditView({ taskId, onDismiss }: TaskEditViewProps) {
-	return (
-		<TaskForm taskId={taskId} variant={onDismiss ? 'modal' : 'page'} onDismiss={onDismiss} />
-	);
+	return <TaskForm taskId={taskId} variant={onDismiss ? 'modal' : 'page'} onDismiss={onDismiss} />;
 }

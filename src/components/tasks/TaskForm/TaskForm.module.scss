@@ -1,5 +1,5 @@
-@use "../../../styles/variables" as v;
-@use "../../../styles/mixins" as m;
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
 
 .container {
 	max-width: 760px;
@@ -7,7 +7,7 @@
 	margin: 0 auto;
 	padding: v.$space-4;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		padding: v.$space-6;
 	}
 }
@@ -151,7 +151,7 @@
 	grid-template-columns: 1fr;
 	gap: v.$space-4;
 
-	@include m.respond-to("sm") {
+	@include m.respond-to('sm') {
 		grid-template-columns: repeat(3, 1fr);
 	}
 }
@@ -161,7 +161,7 @@
 	grid-template-columns: 1fr;
 	gap: v.$space-4;
 
-	@include m.respond-to("sm") {
+	@include m.respond-to('sm') {
 		grid-template-columns: 1fr 1fr;
 	}
 }

@@ -27,7 +27,7 @@ export function Sidebar() {
 			className={cn(
 				styles.sidebar,
 				collapsed && styles.collapsed,
-				mobileSidebarOpen && styles.mobileOpen,
+				mobileSidebarOpen && styles.mobileOpen
 			)}
 		>
 			<div className={styles.logo}>

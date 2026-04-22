@@ -15,10 +15,6 @@ export interface CreateTaskViewProps {
  */
 export function CreateTaskView({ onDismiss, onCreated }: CreateTaskViewProps) {
 	return (
-		<TaskForm
-			variant={onDismiss ? 'modal' : 'page'}
-			onDismiss={onDismiss}
-			onCreated={onCreated}
-		/>
+		<TaskForm variant={onDismiss ? 'modal' : 'page'} onDismiss={onDismiss} onCreated={onCreated} />
 	);
 }

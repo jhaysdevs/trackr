@@ -1,5 +1,5 @@
-@use "../../../styles/variables" as v;
-@use "../../../styles/mixins" as m;
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
 
 .main {
 	flex: 1;
@@ -9,7 +9,7 @@
 	width: 100%;
 	margin: 0 auto;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		padding: v.$space-6;
 	}
 }

@@ -1,0 +1,36 @@
+@use '../../../styles/variables' as v;
+
+.wrap {
+	position: relative;
+	width: 100%;
+}
+
+.icon {
+	position: absolute;
+	left: v.$space-3;
+	top: 50%;
+	transform: translateY(-50%);
+	color: v.$color-text-muted;
+	pointer-events: none;
+}
+
+.input {
+	width: 100%;
+	height: 38px;
+	padding: 0 v.$space-3 0 calc(v.$space-3 + 20px);
+	background: v.$color-bg-raised;
+	border: 1px solid v.$color-border;
+	border-radius: v.$radius-base;
+	color: v.$color-text-primary;
+	font-size: v.$font-size-sm;
+
+	&::placeholder {
+		color: v.$color-text-muted;
+	}
+
+	&:focus {
+		outline: none;
+		border-color: v.$color-border-focus;
+		box-shadow: 0 0 0 2px v.$color-accent-muted;
+	}
+}

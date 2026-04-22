@@ -3,6 +3,7 @@ import type { CreateTaskInput, UpdateTaskInput } from '@/lib/validations/task';
 import type { CreateProjectInput, UpdateProjectInput } from '@/lib/validations/project';
 import type { CreateListInput, UpdateListInput } from '@/lib/validations/list';
 import { createId, slugify } from '@/lib/utils';
+import { taskMatchesQuery } from '@/lib/taskSearch';
 import seedData from '@/data/seed.json';
 import { BACKLOG_LIST_ID } from '@/lib/kanbanLists';
 
@@ -114,13 +115,13 @@ export const storage = {
 				? backlog.id
 				: [...remaining].sort((a, b) => a.position - b.position)[0].id;
 
-		store.tasks = store.tasks.map((t) =>
-			t.listId === id ? { ...t, listId: fallbackId } : t
-		);
+		store.tasks = store.tasks.map((t) => (t.listId === id ? { ...t, listId: fallbackId } : t));
 		store.lists = remaining;
-		[...remaining].sort((a, b) => a.position - b.position).forEach((l, i) => {
-			l.position = i;
-		});
+		[...remaining]
+			.sort((a, b) => a.position - b.position)
+			.forEach((l, i) => {
+				l.position = i;
+			});
 		write(store);
 		return true;
 	},
@@ -200,9 +201,16 @@ export const storage = {
 		const store = read();
 		let rows = [...store.tasks];
 
-		if (filters.search) {
-			const q = filters.search.toLowerCase();
-			rows = rows.filter((i) => i.title.toLowerCase().includes(q));
+		if (filters.search?.trim()) {
+			const q = filters.search;
+			const projectsById = Object.fromEntries(store.projects.map((p) => [p.id, p]));
+			const listsById = Object.fromEntries(store.lists.map((l) => [l.id, l]));
+			rows = rows.filter((t) =>
+				taskMatchesQuery(t, q, {
+					project: projectsById[t.projectId],
+					list: t.listId ? listsById[t.listId] : null,
+				})
+			);
 		}
 		if (filters.status?.length) {
 			rows = rows.filter((i) => filters.status!.includes(i.status));

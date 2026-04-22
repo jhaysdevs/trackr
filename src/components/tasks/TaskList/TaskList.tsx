@@ -11,6 +11,7 @@ import styles from './TaskList.module.scss';
 
 export function TaskList() {
 	const filters = useFiltersStore((s) => s.taskFilters);
+	const hasSearch = Boolean(filters.search?.trim());
 	const { data, isPending } = useTasks(filters);
 
 	if (isPending) {
@@ -27,7 +28,7 @@ export function TaskList() {
 		return (
 			<div className={styles.empty}>
 				<CircleDot size={32} />
-				<span>No tasks found</span>
+				<span>{hasSearch ? 'No tasks match your search' : 'No tasks found'}</span>
 			</div>
 		);
 	}

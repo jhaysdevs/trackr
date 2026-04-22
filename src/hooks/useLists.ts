@@ -28,8 +28,7 @@ export function useCreateList() {
 export function useUpdateList() {
 	const qc = useQueryClient();
 	return useMutation({
-		mutationFn: ({ id, data }: { id: string; data: UpdateListInput }) =>
-			listsApi.update(id, data),
+		mutationFn: ({ id, data }: { id: string; data: UpdateListInput }) => listsApi.update(id, data),
 		onSuccess: () => qc.invalidateQueries({ queryKey: listKeys.lists() }),
 	});
 }

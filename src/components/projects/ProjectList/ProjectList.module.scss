@@ -1,5 +1,5 @@
-@use "../../../styles/variables" as v;
-@use "../../../styles/mixins" as m;
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
 
 .root {
 	display: flex;
@@ -45,7 +45,7 @@
 		background-color: v.$color-bg-raised;
 	}
 
-	&[data-status="archived"] {
+	&[data-status='archived'] {
 		opacity: 0.6;
 	}
 }
@@ -116,17 +116,17 @@
 	padding: 2px v.$space-2;
 	border-radius: v.$radius-full;
 
-	&[data-status="active"] {
+	&[data-status='active'] {
 		background: color-mix(in srgb, v.$color-success 15%, transparent);
 		color: v.$color-success;
 	}
 
-	&[data-status="paused"] {
+	&[data-status='paused'] {
 		background: color-mix(in srgb, v.$color-warning 15%, transparent);
 		color: v.$color-warning;
 	}
 
-	&[data-status="archived"] {
+	&[data-status='archived'] {
 		background: color-mix(in srgb, v.$color-text-muted 15%, transparent);
 		color: v.$color-text-muted;
 	}

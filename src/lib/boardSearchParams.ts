@@ -32,7 +32,10 @@ const TYPES: TaskType[] = [
 
 function splitParam(value: string | null): string[] {
 	if (!value) return [];
-	return value.split(',').map((s) => s.trim()).filter(Boolean);
+	return value
+		.split(',')
+		.map((s) => s.trim())
+		.filter(Boolean);
 }
 
 export interface BoardFiltersFromUrl {

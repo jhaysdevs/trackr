@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { TASK_PRIORITY_LABEL, TASK_STATUS_LABEL, TASK_TYPE_LABEL } from '@/lib/taskLabels';
 import type { TaskStatus, TaskPriority, TaskType } from '@/types';
 import styles from './Badge.module.scss';
 
@@ -13,53 +14,18 @@ interface BadgeProps {
 	className?: string;
 }
 
-const STATUS_LABEL: Record<TaskStatus, string> = {
-	backlog: 'Backlog',
-	ready: 'Ready',
-	in_progress: 'In Progress',
-	code_review: 'Code Review',
-	qa_testing: 'QA / Testing',
-	blocked: 'Blocked',
-	resolved: 'Resolved',
-	closed: 'Closed',
-};
-
-const PRIORITY_LABEL: Record<TaskPriority, string> = {
-	critical: 'Critical',
-	high: 'High',
-	medium: 'Medium',
-	low: 'Low',
-};
-
-const TYPE_LABEL: Record<TaskType, string> = {
-	bug: 'Bug',
-	feature: 'Feature',
-	enhancement: 'Enhancement',
-	refactor: 'Refactor',
-	tech_debt: 'Tech Debt',
-	documentation: 'Docs',
-	ui_ux: 'UI / UX',
-	performance: 'Performance',
-	security: 'Security',
-	devops: 'DevOps',
-	testing: 'Testing',
-	spike: 'Spike',
-	integration: 'Integration',
-	accessibility: 'A11y',
-};
-
 export function Badge({ variant, className }: BadgeProps) {
 	let label = '';
 	let variantClass = '';
 
 	if (variant.kind === 'status') {
-		label = STATUS_LABEL[variant.value];
+		label = TASK_STATUS_LABEL[variant.value];
 		variantClass = styles[`status-${variant.value}`];
 	} else if (variant.kind === 'priority') {
-		label = PRIORITY_LABEL[variant.value];
+		label = TASK_PRIORITY_LABEL[variant.value];
 		variantClass = styles[`priority-${variant.value}`];
 	} else if (variant.kind === 'type') {
-		label = TYPE_LABEL[variant.value];
+		label = TASK_TYPE_LABEL[variant.value];
 		variantClass = styles[`type-${variant.value}`];
 	} else {
 		variantClass = variant.className;

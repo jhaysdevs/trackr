@@ -138,7 +138,8 @@ export function DashboardClient() {
 					<aside className={styles.sampleDataBanner}>
 						<Info size={14} aria-hidden />
 						<p>
-							<strong>Sample data</strong> — this is seed data loaded into localStorage on first run.
+							<strong>Sample data</strong> — this is seed data loaded into localStorage on first
+							run.
 						</p>
 					</aside>
 				)}
@@ -222,10 +223,7 @@ export function DashboardClient() {
 					</section>
 				</div>
 
-				<section
-					className={styles.distributionPanelWide}
-					aria-labelledby="dash-type-heading"
-				>
+				<section className={styles.distributionPanelWide} aria-labelledby="dash-type-heading">
 					<header className={styles.panelHeader}>
 						<h2 id="dash-type-heading" className={styles.panelHeading}>
 							Tasks by Type
@@ -233,7 +231,10 @@ export function DashboardClient() {
 						<p className={styles.panelLede}>Volume per work category</p>
 					</header>
 					{!isPending && (
-						<HBarChart data={typeBars} onRowClick={(row) => goToBoardWithType(row.id as TaskType)} />
+						<HBarChart
+							data={typeBars}
+							onRowClick={(row) => goToBoardWithType(row.id as TaskType)}
+						/>
 					)}
 				</section>
 			</div>

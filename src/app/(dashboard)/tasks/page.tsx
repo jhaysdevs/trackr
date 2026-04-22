@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header/Header';
+import { TaskSearchBar } from '@/components/tasks/TaskSearchBar/TaskSearchBar';
 import { TaskList } from '@/components/tasks/TaskList/TaskList';
 import styles from './tasks.module.scss';
 
@@ -10,6 +11,9 @@ export default function TasksPage() {
 		<>
 			<Header title="Tasks" />
 			<main className={styles.main}>
+				<div className={styles.tasksToolbar}>
+					<TaskSearchBar />
+				</div>
 				<TaskList />
 			</main>
 		</>

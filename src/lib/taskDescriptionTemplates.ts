@@ -56,15 +56,14 @@ export function buildDefaultTaskDescriptionHtml(o: DefaultDescriptionOptions): s
 		? `<p><strong>Working title:</strong> ${escapeHtml(title)}</p>`
 		: `<p><em>Add a title above — it will stay in sync while this description matches the template.</em></p>`;
 
-	const projectLine =
-		o.projectName?.trim() ?
-			`<p><strong>Project:</strong> ${escapeHtml(o.projectName.trim())}</p>`
-		:	'<p><strong>Project:</strong> <em>Select a project if applicable.</em></p>';
+	const projectLine = o.projectName?.trim()
+		? `<p><strong>Project:</strong> ${escapeHtml(o.projectName.trim())}</p>`
+		: '<p><strong>Project:</strong> <em>Select a project if applicable.</em></p>';
 
 	const relatedBlock =
-		o.relatedTitles.length > 0 ?
-			`<h2>Similar work in this tracker</h2><ul>${o.relatedTitles.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>`
-		:	'';
+		o.relatedTitles.length > 0
+			? `<h2>Similar work in this tracker</h2><ul>${o.relatedTitles.map((t) => `<li>${escapeHtml(t)}</li>`).join('')}</ul>`
+			: '';
 
 	function tail(): string {
 		return [relatedBlock].filter(Boolean).join('');

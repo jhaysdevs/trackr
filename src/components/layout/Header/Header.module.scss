@@ -1,5 +1,5 @@
-@use "../../../styles/variables" as v;
-@use "../../../styles/mixins" as m;
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
 
 .header {
 	@include m.flex-between;
@@ -12,7 +12,7 @@
 	z-index: v.$z-sticky;
 	flex-shrink: 0;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		padding: 0 v.$space-6;
 	}
 }
@@ -21,7 +21,7 @@
 	@include m.flex-start;
 	gap: v.$space-2;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		gap: v.$space-3;
 	}
 }
@@ -30,7 +30,7 @@
 	@include m.flex-start;
 	gap: v.$space-2;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		gap: v.$space-3;
 	}
 }
@@ -40,7 +40,7 @@
 	font-weight: v.$font-weight-semibold;
 	color: v.$color-text-primary;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		font-size: v.$font-size-base;
 	}
 }
@@ -106,7 +106,7 @@
 .userInfo {
 	display: none;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		display: flex;
 		flex-direction: column;
 		min-width: 0;

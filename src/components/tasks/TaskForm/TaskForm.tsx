@@ -280,7 +280,12 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 						Close
 					</Button>
 				) : (
-					<Button variant="ghost" size="sm" icon={<ArrowLeft size={14} />} onClick={() => router.push('/tasks')}>
+					<Button
+						variant="ghost"
+						size="sm"
+						icon={<ArrowLeft size={14} />}
+						onClick={() => router.push('/tasks')}
+					>
 						Tasks
 					</Button>
 				)}
@@ -296,7 +301,7 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 			<form className={styles.form} onSubmit={form.handleSubmit(onSubmit)} noValidate>
 				<div className={styles.formHeader}>
 					<h1 className={styles.heading} aria-live="polite" aria-atomic="true">
-						{isEdit ? 'Edit Task' : (watchedTitle?.trim() || 'New Task')}
+						{isEdit ? 'Edit Task' : watchedTitle?.trim() || 'New Task'}
 					</h1>
 					{isEdit && task && (
 						<div className={styles.badgeRow}>

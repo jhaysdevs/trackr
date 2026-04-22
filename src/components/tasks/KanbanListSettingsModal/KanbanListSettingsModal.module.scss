@@ -1,5 +1,5 @@
-@use "../../../styles/variables" as v;
-@use "../../../styles/mixins" as m;
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
 
 .overlay {
 	position: fixed;
@@ -120,12 +120,13 @@
 	border: 2px solid transparent;
 	cursor: pointer;
 	padding: 0;
-	transition: transform v.$transition-fast, border-color v.$transition-base;
+	transition:
+		transform v.$transition-fast,
+		border-color v.$transition-base;
 
 	&:hover {
 		transform: scale(1.08);
 	}
-
 }
 
 .presetBtnActive {

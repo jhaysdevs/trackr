@@ -10,11 +10,18 @@ import {
 	type KeyboardEvent,
 	type DragEvent,
 } from 'react';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Search, Trash2, GripVertical } from 'lucide-react';
 import { GearIcon } from '@/components/ui/GearIcon/GearIcon';
 import { useSearchParams } from 'next/navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useLists, useCreateList, useUpdateList, useDeleteList, useReorderLists } from '@/hooks/useLists';
+import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import {
+	useLists,
+	useCreateList,
+	useUpdateList,
+	useDeleteList,
+	useReorderLists,
+} from '@/hooks/useLists';
 import { useTasks, taskKeys } from '@/hooks/useTasks';
 import { useProjects } from '@/hooks/useProjects';
 import { tasksApi } from '@/lib/api/tasks';
@@ -30,15 +37,25 @@ import {
 	type BoardFiltersFromUrl,
 } from '@/lib/boardSearchParams';
 import { isBacklogList } from '@/lib/kanbanLists';
+import { taskMatchesQuery } from '@/lib/taskSearch';
 import type { List, Task, TaskPriority, TaskStatus, TaskType } from '@/types';
 import styles from './KanbanBoard.module.scss';
 
 // ─── Color palette for new lists ─────────────────────────────────────────────
 
 const PALETTE = [
-	'#4b5563', '#3b82f6', '#f59e0b', '#8b5cf6',
-	'#06b6d4', '#ef4444', '#22c55e', '#ec4899',
-	'#f97316', '#14b8a6', '#a855f7', '#0ea5e9',
+	'#4b5563',
+	'#3b82f6',
+	'#f59e0b',
+	'#8b5cf6',
+	'#06b6d4',
+	'#ef4444',
+	'#22c55e',
+	'#ec4899',
+	'#f97316',
+	'#14b8a6',
+	'#a855f7',
+	'#0ea5e9',
 ];
 
 const PRIORITY_OPTIONS: Array<{ value: TaskPriority; label: string }> = [
@@ -296,7 +313,11 @@ function ColumnHeader({
 						}}
 					/>
 				) : (
-					<span className={styles.columnLabel} onDoubleClick={onStartEdit} title="Double-click to rename">
+					<span
+						className={styles.columnLabel}
+						onDoubleClick={onStartEdit}
+						title="Double-click to rename"
+					>
 						{list.name}
 					</span>
 				)}
@@ -306,13 +327,15 @@ function ColumnHeader({
 						list.wipLimit != null &&
 							typeof list.wipLimit === 'number' &&
 							count > list.wipLimit &&
-							styles.columnCountOverWip,
+							styles.columnCountOverWip
 					)}
 					title={
 						list.wipLimit != null ? `${count} tasks · WIP limit ${list.wipLimit}` : `${count} tasks`
 					}
 				>
-					{list.wipLimit != null && typeof list.wipLimit === 'number' ? `${count}/${list.wipLimit}` : count}
+					{list.wipLimit != null && typeof list.wipLimit === 'number'
+						? `${count}/${list.wipLimit}`
+						: count}
 				</span>
 			</div>
 
@@ -370,6 +393,8 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 	const [priorityFilters, setPriorityFilters] = useState(initialFilters.priorities);
 	const [typeFilters, setTypeFilters] = useState(initialFilters.types);
 	const [statusFilters, setStatusFilters] = useState(initialFilters.statuses);
+	const [boardSearchInput, setBoardSearchInput] = useState('');
+	const boardSearchDebounced = useDebouncedValue(boardSearchInput, 300);
 	const focusColumn = initialFilters.focusColumn;
 	const boardScrollRef = useRef<HTMLDivElement>(null);
 	const { data: rawLists = [], isPending: listsLoading } = useLists();
@@ -382,18 +407,34 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 	const projectOptions = useMemo(() => {
 		return projects.map((project) => ({ value: project.id, label: project.name }));
 	}, [projects]);
+	const projectById = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p])), [projects]);
+	const listById = useMemo(() => Object.fromEntries(lists.map((l) => [l.id, l])), [lists]);
 	const filteredTasks = useMemo(() => {
 		return tasks.filter((task) => {
-			const matchesProject =
-				projectFilters.length === 0 || projectFilters.includes(task.projectId);
+			const matchesProject = projectFilters.length === 0 || projectFilters.includes(task.projectId);
 			const matchesPriority =
 				priorityFilters.length === 0 || priorityFilters.includes(task.priority);
 			const matchesType = typeFilters.length === 0 || typeFilters.includes(task.type);
-			const matchesStatus =
-				statusFilters.length === 0 || statusFilters.includes(task.status);
-			return matchesProject && matchesPriority && matchesType && matchesStatus;
+			const matchesStatus = statusFilters.length === 0 || statusFilters.includes(task.status);
+			if (!matchesProject || !matchesPriority || !matchesType || !matchesStatus) return false;
+			if (boardSearchDebounced.trim()) {
+				return taskMatchesQuery(task, boardSearchDebounced, {
+					project: projectById[task.projectId],
+					list: task.listId ? listById[task.listId] : null,
+				});
+			}
+			return true;
 		});
-	}, [tasks, projectFilters, priorityFilters, typeFilters, statusFilters]);
+	}, [
+		tasks,
+		projectFilters,
+		priorityFilters,
+		typeFilters,
+		statusFilters,
+		boardSearchDebounced,
+		projectById,
+		listById,
+	]);
 
 	// ── Mutations ──
 	const createListMutation = useCreateList();
@@ -408,8 +449,15 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 	});
 
 	const moveAndReorderMutation = useMutation({
-		mutationFn: ({ taskId, targetListId, orderedIds }: { taskId: string; targetListId: string; orderedIds: string[] }) =>
-			tasksApi.moveAndReorder(taskId, targetListId, orderedIds),
+		mutationFn: ({
+			taskId,
+			targetListId,
+			orderedIds,
+		}: {
+			taskId: string;
+			targetListId: string;
+			orderedIds: string[];
+		}) => tasksApi.moveAndReorder(taskId, targetListId, orderedIds),
 		onSuccess: () => qc.invalidateQueries({ queryKey: taskKeys.lists() }),
 	});
 
@@ -430,13 +478,19 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 	const [newTaskModalOpen, setNewTaskModalOpen] = useState(false);
 	const [dragOverListId, setDragOverListId] = useState<string | null>(null);
 	const [dragOverColumnId, setDragOverColumnId] = useState<string | null>(null);
-	const [taskDropTarget, setTaskDropTarget] = useState<{ id: string; before: boolean } | null>(null);
+	const [taskDropTarget, setTaskDropTarget] = useState<{ id: string; before: boolean } | null>(
+		null
+	);
 
 	// ── Helpers ──
 	const tasksByList = useCallback(
 		(listId: string) => {
 			const filtered = filteredTasks.filter((t) => t.listId === listId);
-			return filtered.sort((a, b) => ((a.position as unknown as number) ?? Infinity) - ((b.position as unknown as number) ?? Infinity));
+			return filtered.sort(
+				(a, b) =>
+					((a.position as unknown as number) ?? Infinity) -
+					((b.position as unknown as number) ?? Infinity)
+			);
 		},
 		[filteredTasks]
 	);
@@ -515,10 +569,16 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 		if (!srcTaskId || dragTypeRef.current !== 'card') return;
 
 		const target = taskDropTargetRef.current;
-		if (!target) { resetDrag(); return; }
+		if (!target) {
+			resetDrag();
+			return;
+		}
 
 		const srcTask = tasks.find((t) => t.id === srcTaskId);
-		if (!srcTask) { resetDrag(); return; }
+		if (!srcTask) {
+			resetDrag();
+			return;
+		}
 
 		const colTasks = tasksByList(listId);
 		const isSameList = srcTask.listId === listId;
@@ -537,7 +597,11 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 			const insertAt = target.before ? newTgtIdx : newTgtIdx + 1;
 			const newOrder = [...tgtTasks.map((t) => t.id)];
 			newOrder.splice(insertAt, 0, srcTaskId);
-			moveAndReorderMutation.mutate({ taskId: srcTaskId, targetListId: listId, orderedIds: newOrder });
+			moveAndReorderMutation.mutate({
+				taskId: srcTaskId,
+				targetListId: listId,
+				orderedIds: newOrder,
+			});
 		}
 
 		resetDrag();
@@ -615,159 +679,177 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 
 	return (
 		<>
-		<div className={styles.root}>
-			{/* Toolbar */}
-			<div className={styles.toolbar}>
-				<MultiSelectFilter
-					label="Projects"
-					options={projectOptions}
-					selectedValues={projectFilters}
-					onToggle={(value) => {
-						setProjectFilters((prev) =>
-							prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
-						);
-					}}
-					onClear={() => setProjectFilters([])}
-				/>
-				<MultiSelectFilter
-					label="Priority"
-					options={PRIORITY_OPTIONS}
-					selectedValues={priorityFilters}
-					onToggle={(value) => {
-						setPriorityFilters((prev) =>
-							prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
-						);
-					}}
-					onClear={() => setPriorityFilters([])}
-				/>
-				<MultiSelectFilter
-					label="Status"
-					options={STATUS_OPTIONS}
-					selectedValues={statusFilters}
-					onToggle={(value) => {
-						setStatusFilters((prev) =>
-							prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
-						);
-					}}
-					onClear={() => setStatusFilters([])}
-				/>
-				<MultiSelectFilter
-					label="Type"
-					options={TYPE_OPTIONS}
-					selectedValues={typeFilters}
-					onToggle={(value) => {
-						setTypeFilters((prev) =>
-							prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
-						);
-					}}
-					onClear={() => setTypeFilters([])}
-				/>
-				<span className={styles.taskTotal}>{filteredTasks.length} tasks</span>
-			</div>
-
-			{/* Board */}
-			<div
-				ref={boardScrollRef}
-				className={styles.board}
-				onDragLeave={() => { setDragOverListId(null); setDragOverColumnId(null); setTaskDropIndicator(null); }}
-			>
-				{isPending
-					? Array.from({ length: 5 }).map((_, i) => (
-							<div key={i} className={styles.skeletonColumn} />
-						))
-					: lists.map((list) => {
-							const colTasks = tasksByList(list.id);
-
-							return (
-								<div
-									key={list.id}
-									data-list-id={list.id}
-									className={cn(
-										styles.column,
-										dragOverColumnId === list.id && styles.columnTaskDragOver,
-									)}
-									style={{ '--col-color': list.color } as React.CSSProperties}
-								>
-									<ColumnHeader
-										list={list}
-										count={colTasks.length}
-										isEditing={editingListId === list.id}
-										isDragOver={dragOverListId === list.id}
-										onDragStart={(e) => onColumnDragStart(list.id, e)}
-										onDragOver={(e) => onColumnDragOver(list.id, e)}
-										onDrop={(e) => onColumnDrop(list.id, e)}
-										onDragEnd={resetDrag}
-										onStartEdit={() => setEditingListId(list.id)}
-										onFinishEdit={(name) => handleRename(list.id, name)}
-										onCancelEdit={() => setEditingListId(null)}
-										onDelete={() => handleRequestDeleteList(list.id)}
-										onAddTask={() => setNewTaskModalOpen(true)}
-										onOpenSettings={() => setListSettingsListId(list.id)}
-										canDeleteList={!isBacklogList(list.id)}
-									/>
-									<div
-										className={styles.columnBody}
-										onDragOver={(e) => onColumnBodyDragOver(list.id, e)}
-										onDrop={(e) => onColumnBodyDrop(list.id, e)}
-									>
-										{colTasks.length === 0 ? (
-											<div className={styles.emptyCol}>No tasks</div>
-										) : (
-											colTasks.map((task) => (
-												<Fragment key={task.id}>
-													{taskDropTarget?.id === task.id && taskDropTarget.before && (
-														<div className={styles.taskDropIndicator} />
-													)}
-													<KanbanTaskCard
-														task={task}
-														listId={list.id}
-														onSelectTask={handleSelectTask}
-														onTaskDragStart={onTaskDragStart}
-														onTaskDragOver={onTaskDragOver}
-														onTaskDrop={onTaskDrop}
-														onTaskDragEnd={resetDrag}
-													/>
-													{taskDropTarget?.id === task.id && !taskDropTarget.before && (
-														<div className={styles.taskDropIndicator} />
-													)}
-												</Fragment>
-											))
-										)}
-									</div>
-								</div>
+			<div className={styles.root}>
+				{/* Toolbar */}
+				<div className={styles.toolbar}>
+					<div className={styles.toolbarSearch}>
+						<Search className={styles.toolbarSearchIcon} size={16} aria-hidden />
+						<input
+							type="search"
+							className={styles.toolbarSearchInput}
+							value={boardSearchInput}
+							onChange={(e) => setBoardSearchInput(e.target.value)}
+							placeholder="Search tasks…"
+							aria-label="Search tasks"
+							autoComplete="off"
+							spellCheck={false}
+						/>
+					</div>
+					<MultiSelectFilter
+						label="Projects"
+						options={projectOptions}
+						selectedValues={projectFilters}
+						onToggle={(value) => {
+							setProjectFilters((prev) =>
+								prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
 							);
-						})}
+						}}
+						onClear={() => setProjectFilters([])}
+					/>
+					<MultiSelectFilter
+						label="Priority"
+						options={PRIORITY_OPTIONS}
+						selectedValues={priorityFilters}
+						onToggle={(value) => {
+							setPriorityFilters((prev) =>
+								prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+							);
+						}}
+						onClear={() => setPriorityFilters([])}
+					/>
+					<MultiSelectFilter
+						label="Status"
+						options={STATUS_OPTIONS}
+						selectedValues={statusFilters}
+						onToggle={(value) => {
+							setStatusFilters((prev) =>
+								prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+							);
+						}}
+						onClear={() => setStatusFilters([])}
+					/>
+					<MultiSelectFilter
+						label="Type"
+						options={TYPE_OPTIONS}
+						selectedValues={typeFilters}
+						onToggle={(value) => {
+							setTypeFilters((prev) =>
+								prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+							);
+						}}
+						onClear={() => setTypeFilters([])}
+					/>
+					<span className={styles.taskTotal}>{filteredTasks.length} tasks</span>
+				</div>
 
-				{/* Add list button */}
-				{!isPending && (
-					<button className={styles.addListBtn} onClick={handleAddList}>
-						<Plus size={16} />
-						<span>Add list</span>
-					</button>
-				)}
+				{/* Board */}
+				<div
+					ref={boardScrollRef}
+					className={styles.board}
+					onDragLeave={() => {
+						setDragOverListId(null);
+						setDragOverColumnId(null);
+						setTaskDropIndicator(null);
+					}}
+				>
+					{isPending
+						? Array.from({ length: 5 }).map((_, i) => (
+								<div key={i} className={styles.skeletonColumn} />
+							))
+						: lists.map((list) => {
+								const colTasks = tasksByList(list.id);
+
+								return (
+									<div
+										key={list.id}
+										data-list-id={list.id}
+										className={cn(
+											styles.column,
+											dragOverColumnId === list.id && styles.columnTaskDragOver
+										)}
+										style={{ '--col-color': list.color } as React.CSSProperties}
+									>
+										<ColumnHeader
+											list={list}
+											count={colTasks.length}
+											isEditing={editingListId === list.id}
+											isDragOver={dragOverListId === list.id}
+											onDragStart={(e) => onColumnDragStart(list.id, e)}
+											onDragOver={(e) => onColumnDragOver(list.id, e)}
+											onDrop={(e) => onColumnDrop(list.id, e)}
+											onDragEnd={resetDrag}
+											onStartEdit={() => setEditingListId(list.id)}
+											onFinishEdit={(name) => handleRename(list.id, name)}
+											onCancelEdit={() => setEditingListId(null)}
+											onDelete={() => handleRequestDeleteList(list.id)}
+											onAddTask={() => setNewTaskModalOpen(true)}
+											onOpenSettings={() => setListSettingsListId(list.id)}
+											canDeleteList={!isBacklogList(list.id)}
+										/>
+										<div
+											className={styles.columnBody}
+											onDragOver={(e) => onColumnBodyDragOver(list.id, e)}
+											onDrop={(e) => onColumnBodyDrop(list.id, e)}
+										>
+											{colTasks.length === 0 ? (
+												<div className={styles.emptyCol}>No tasks</div>
+											) : (
+												colTasks.map((task) => (
+													<Fragment key={task.id}>
+														{taskDropTarget?.id === task.id && taskDropTarget.before && (
+															<div className={styles.taskDropIndicator} />
+														)}
+														<KanbanTaskCard
+															task={task}
+															listId={list.id}
+															onSelectTask={handleSelectTask}
+															onTaskDragStart={onTaskDragStart}
+															onTaskDragOver={onTaskDragOver}
+															onTaskDrop={onTaskDrop}
+															onTaskDragEnd={resetDrag}
+														/>
+														{taskDropTarget?.id === task.id && !taskDropTarget.before && (
+															<div className={styles.taskDropIndicator} />
+														)}
+													</Fragment>
+												))
+											)}
+										</div>
+									</div>
+								);
+							})}
+
+					{/* Add list button */}
+					{!isPending && (
+						<button className={styles.addListBtn} onClick={handleAddList}>
+							<Plus size={16} />
+							<span>Add list</span>
+						</button>
+					)}
+				</div>
 			</div>
-		</div>
-		{modalTaskId && (
-			<TaskDetailModal taskId={modalTaskId} onClose={() => setModalTaskId(null)} />
-		)}
-		{newTaskModalOpen && <NewTaskModal onClose={() => setNewTaskModalOpen(false)} />}
-		{listOpenInSettings && (
-			<KanbanListSettingsModal list={listOpenInSettings} onClose={() => setListSettingsListId(null)} />
-		)}
-		{deleteListId && (
-			<DeleteListModal
-				listName={lists.find((l) => l.id === deleteListId)?.name ?? 'List'}
-				taskCount={tasks.filter((t) => t.listId === deleteListId).length}
-				isPending={deleteListMutation.isPending}
-				onCancel={() => setDeleteListId(null)}
-				onConfirm={() => {
-					const id = deleteListId;
-					deleteListMutation.mutate(id, {
-						onSettled: () => setDeleteListId(null),
-					});
-				}}
-			/>
-		)}
+			{modalTaskId && <TaskDetailModal taskId={modalTaskId} onClose={() => setModalTaskId(null)} />}
+			{newTaskModalOpen && <NewTaskModal onClose={() => setNewTaskModalOpen(false)} />}
+			{listOpenInSettings && (
+				<KanbanListSettingsModal
+					list={listOpenInSettings}
+					onClose={() => setListSettingsListId(null)}
+				/>
+			)}
+			{deleteListId && (
+				<DeleteListModal
+					listName={lists.find((l) => l.id === deleteListId)?.name ?? 'List'}
+					taskCount={tasks.filter((t) => t.listId === deleteListId).length}
+					isPending={deleteListMutation.isPending}
+					onCancel={() => setDeleteListId(null)}
+					onConfirm={() => {
+						const id = deleteListId;
+						deleteListMutation.mutate(id, {
+							onSettled: () => setDeleteListId(null),
+						});
+					}}
+				/>
+			)}
 		</>
 	);
 }
@@ -775,7 +857,5 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 export function KanbanBoard() {
 	const searchParams = useSearchParams();
 	const initialFilters = useMemo(() => parseBoardSearchParams(searchParams), [searchParams]);
-	return (
-		<KanbanBoardInner key={searchParams.toString()} initialFilters={initialFilters} />
-	);
+	return <KanbanBoardInner key={searchParams.toString()} initialFilters={initialFilters} />;
 }

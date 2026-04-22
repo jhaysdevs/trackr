@@ -9,14 +9,5 @@
 	"bracketSpacing": true,
 	"bracketSameLine": false,
 	"arrowParens": "always",
-	"endOfLine": "lf",
-	"overrides": [
-		{
-			"files": "*.scss",
-			"options": {
-				"singleQuote": false,
-				"printWidth": 120
-			}
-		}
-	]
+	"endOfLine": "lf"
 }

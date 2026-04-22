@@ -39,7 +39,9 @@ export function KanbanListSettingsModal({ list, onClose }: KanbanListSettingsMod
 	const [mounted, setMounted] = useState(false);
 	const [name, setName] = useState(list.name);
 	const [color, setColor] = useState(normalizeHex(list.color));
-	const [wipLimitStr, setWipLimitStr] = useState(list.wipLimit != null ? String(list.wipLimit) : '');
+	const [wipLimitStr, setWipLimitStr] = useState(
+		list.wipLimit != null ? String(list.wipLimit) : ''
+	);
 
 	const updateList = useUpdateList();
 
@@ -133,14 +135,19 @@ export function KanbanListSettingsModal({ list, onClose }: KanbanListSettingsMod
 
 					<div className={styles.field}>
 						<span className={styles.label}>Column color</span>
-						<p className={styles.hint}>Used for the column accent and task card hover on this board.</p>
+						<p className={styles.hint}>
+							Used for the column accent and task card hover on this board.
+						</p>
 						<div className={styles.colorRow}>
 							<div className={styles.presets}>
 								{PRESET_COLORS.map((hex) => (
 									<button
 										key={hex}
 										type="button"
-										className={cn(styles.presetBtn, normalizeHex(color) === hex && styles.presetBtnActive)}
+										className={cn(
+											styles.presetBtn,
+											normalizeHex(color) === hex && styles.presetBtnActive
+										)}
 										style={{ background: hex }}
 										title={hex}
 										onClick={() => setColor(hex)}
@@ -186,7 +193,12 @@ export function KanbanListSettingsModal({ list, onClose }: KanbanListSettingsMod
 					<Button type="button" variant="ghost" onClick={onClose} disabled={updateList.isPending}>
 						Cancel
 					</Button>
-					<Button type="button" variant="primary" onClick={handleSave} loading={updateList.isPending}>
+					<Button
+						type="button"
+						variant="primary"
+						onClick={handleSave}
+						loading={updateList.isPending}
+					>
 						Save
 					</Button>
 				</div>

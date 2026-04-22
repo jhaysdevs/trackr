@@ -1,5 +1,5 @@
-@use "../../../styles/variables" as v;
-@use "../../../styles/mixins" as m;
+@use '../../../styles/variables' as v;
+@use '../../../styles/mixins' as m;
 
 .container {
 	display: flex;
@@ -21,7 +21,7 @@
 		background v.$transition-base;
 	cursor: pointer;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		flex-wrap: nowrap;
 		gap: v.$space-4;
 		padding: v.$space-3 v.$space-4;
@@ -40,7 +40,7 @@
 	font-family: v.$font-mono;
 	flex-shrink: 0;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		width: 40px;
 	}
 }
@@ -54,7 +54,7 @@
 	// On mobile: take full remaining width after number+type, then wrap meta below
 	width: calc(100% - 120px);
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		width: auto;
 	}
 }
@@ -67,7 +67,7 @@
 	width: 100%;
 	padding-left: calc(30px + v.$space-2); // align under title
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		gap: v.$space-3;
 		width: auto;
 		padding-left: 0;
@@ -81,7 +81,7 @@
 	flex-shrink: 0;
 	display: none;
 
-	@include m.respond-to("md") {
+	@include m.respond-to('md') {
 		display: block;
 		width: 80px;
 		text-align: right;

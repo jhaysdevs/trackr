@@ -4,17 +4,17 @@ Internal task tracker for software development teams. Create and triage bugs, fe
 
 ## Stack
 
-| Layer           | Choice                                         |
-| --------------- | ---------------------------------------------- |
-| Framework       | Next.js 16 (App Router) + React 19             |
-| Language        | TypeScript (strict)                            |
-| Styling         | SASS modules (custom design system, dark-only) |
-| Server state    | TanStack Query v5                              |
-| Client/UI state | Zustand v5                                     |
+| Layer           | Choice                                             |
+| --------------- | -------------------------------------------------- |
+| Framework       | Next.js 16 (App Router) + React 19                 |
+| Language        | TypeScript (strict)                                |
+| Styling         | SASS modules (custom design system, dark-only)     |
+| Server state    | TanStack Query v5                                  |
+| Client/UI state | Zustand v5                                         |
 | Persistence     | localStorage (seed data from `src/data/seed.json`) |
-| Validation      | Zod + React Hook Form                          |
-| Charts          | D3                                             |
-| Icons           | Lucide React                                   |
+| Validation      | Zod + React Hook Form                              |
+| Charts          | D3                                                 |
+| Icons           | Lucide React                                       |
 
 No database, no authentication. All users act as admin. Data lives in the browser's `localStorage` and is pre-seeded with realistic sample tasks and projects on first run.
 
@@ -37,7 +37,8 @@ Open [http://localhost:3000](http://localhost:3000) — root redirects to `/dash
 Sample data loads automatically on first visit. To reset to the original seed data, open the browser console and run:
 
 ```js
-localStorage.removeItem('trackr_v4'); location.reload();
+localStorage.removeItem('trackr_v4');
+location.reload();
 ```
 
 ## Scripts

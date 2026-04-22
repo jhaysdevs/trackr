@@ -106,10 +106,7 @@ export function HBarChart({ data, className, onRowClick }: HBarChartProps) {
 		let cum = 0;
 		for (const datum of sorted) {
 			const lines = narrow ? wrapLabelToLines(datum.label, labelSlotW) : [datum.label];
-			const inner = Math.max(
-				ROW_H - BAR_GAP,
-				lines.length * LABEL_LINE_HEIGHT_PX
-			);
+			const inner = Math.max(ROW_H - BAR_GAP, lines.length * LABEL_LINE_HEIGHT_PX);
 			const rowH = inner + BAR_GAP;
 			layouts.push({
 				top: cum,
@@ -188,10 +185,7 @@ export function HBarChart({ data, className, onRowClick }: HBarChartProps) {
 				text
 					.append('tspan')
 					.attr('x', -8)
-					.attr(
-						'dy',
-						j === 0 ? `${-((n - 1) / 2) * 1.2}em` : '1.2em'
-					)
+					.attr('dy', j === 0 ? `${-((n - 1) / 2) * 1.2}em` : '1.2em')
 					.text(line);
 			});
 		});
@@ -254,12 +248,10 @@ export function HBarChart({ data, className, onRowClick }: HBarChartProps) {
 			});
 
 		if (onRowClick) {
-			rows
-				.style('cursor', 'pointer')
-				.on('click', (event: MouseEvent, layout: RowLayout) => {
-					event.stopPropagation();
-					onRowClick(layout.datum);
-				});
+			rows.style('cursor', 'pointer').on('click', (event: MouseEvent, layout: RowLayout) => {
+				event.stopPropagation();
+				onRowClick(layout.datum);
+			});
 		}
 
 		return () => {
