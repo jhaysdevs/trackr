@@ -58,7 +58,7 @@ export function buildDefaultTaskDescriptionHtml(o: DefaultDescriptionOptions): s
 
 	const projectLine = o.projectName?.trim()
 		? `<p><strong>Project:</strong> ${escapeHtml(o.projectName.trim())}</p>`
-		: '<p><strong>Project:</strong> <em>Select a project if applicable.</em></p>';
+		: '';
 
 	const relatedBlock =
 		o.relatedTitles.length > 0

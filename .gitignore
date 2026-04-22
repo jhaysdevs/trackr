@@ -45,3 +45,4 @@ Thumbs.db
 .vercel
 .turbo
 *.tgz
+.claude/settings.local.json

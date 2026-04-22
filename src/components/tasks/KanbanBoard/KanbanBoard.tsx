@@ -107,7 +107,7 @@ function MultiSelectFilter<T extends string>({
 	onClear: () => void;
 }) {
 	const [open, setOpen] = useState(false);
-	const containerRef = useRef<HTMLDetailsElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	const buttonLabel = selectedValues.length === 0 ? label : `${label} (${selectedValues.length})`;
 
@@ -124,51 +124,52 @@ function MultiSelectFilter<T extends string>({
 	}, [open]);
 
 	return (
-		<details
+		<div
 			ref={containerRef}
 			className={styles.filterDropdown}
-			open={open}
-			onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}
-			onBlur={(e) => {
-				if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-					setOpen(false);
-				}
-			}}
+			data-open={open}
 			onKeyDown={(e) => {
 				if (e.key === 'Escape') setOpen(false);
 			}}
 		>
-			<summary className={styles.filterButton}>{buttonLabel}</summary>
-			<div className={styles.filterMenu}>
-				<div className={styles.filterMenuHeader}>
-					<span className={styles.filterMenuTitle}>{label}</span>
-					{selectedValues.length > 0 && (
-						<button
-							type="button"
-							className={styles.clearBtn}
-							onClick={(e) => {
-								e.preventDefault();
-								onClear();
-							}}
-						>
-							Clear
-						</button>
-					)}
+			<button
+				type="button"
+				className={styles.filterButton}
+				aria-expanded={open}
+				aria-haspopup="listbox"
+				onClick={() => setOpen((o) => !o)}
+			>
+				{buttonLabel}
+			</button>
+			{open && (
+				<div className={styles.filterMenu} role="listbox" aria-multiselectable="true">
+					<div className={styles.filterMenuHeader}>
+						<span className={styles.filterMenuTitle}>{label}</span>
+						{selectedValues.length > 0 && (
+							<button
+								type="button"
+								className={styles.clearBtn}
+								onClick={onClear}
+							>
+								Clear
+							</button>
+						)}
+					</div>
+					<div className={styles.filterOptions}>
+						{options.map((option) => (
+							<label key={option.value} className={styles.filterOption}>
+								<input
+									type="checkbox"
+									checked={selectedValues.includes(option.value)}
+									onChange={() => onToggle(option.value)}
+								/>
+								<span>{option.label}</span>
+							</label>
+						))}
+					</div>
 				</div>
-				<div className={styles.filterOptions}>
-					{options.map((option) => (
-						<label key={option.value} className={styles.filterOption}>
-							<input
-								type="checkbox"
-								checked={selectedValues.includes(option.value)}
-								onChange={() => onToggle(option.value)}
-							/>
-							<span>{option.label}</span>
-						</label>
-					))}
-				</div>
-			</div>
-		</details>
+			)}
+		</div>
 	);
 }
 

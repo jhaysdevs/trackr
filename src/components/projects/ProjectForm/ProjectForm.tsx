@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import { z } from 'zod';
 import { Button } from '@/components/ui/Button/Button';
 import { Input } from '@/components/ui/Input/Input';
+import { RichTextEditor } from '@/components/ui/RichTextEditor/RichTextEditor';
 import {
 	useProject,
 	useCreateProject,
@@ -60,6 +61,16 @@ export function ProjectForm({ projectId }: ProjectFormProps) {
 			description: '',
 			status: 'active',
 		},
+		// values syncs reactively when project loads; keeps dirty edits on background refetch
+		values: project
+			? {
+					name: project.name,
+					slug: project.slug,
+					description: project.description ?? '',
+					status: project.status as 'active' | 'archived' | 'paused',
+				}
+			: undefined,
+		resetOptions: { keepDirtyValues: true },
 	});
 
 	const watchedName = form.watch('name');
@@ -70,17 +81,6 @@ export function ProjectForm({ projectId }: ProjectFormProps) {
 			form.setValue('slug', toSlug(watchedName), { shouldValidate: false });
 		}
 	}, [watchedName, isEdit, slugTouched, form]);
-
-	useEffect(() => {
-		if (project) {
-			form.reset({
-				name: project.name,
-				slug: project.slug,
-				description: project.description ?? '',
-				status: project.status as 'active' | 'archived' | 'paused',
-			});
-		}
-	}, [project, form]);
 
 	async function onSubmit(data: FormValues) {
 		setSaved(false);
@@ -178,12 +178,17 @@ export function ProjectForm({ projectId }: ProjectFormProps) {
 						<label className={styles.label} htmlFor="description">
 							Description
 						</label>
-						<textarea
-							id="description"
-							className={styles.textarea}
-							placeholder="What is this project about?"
-							rows={3}
-							{...form.register('description')}
+						<Controller
+							control={form.control}
+							name="description"
+							render={({ field }) => (
+								<RichTextEditor
+									id="description"
+									value={field.value ?? ''}
+									onChange={field.onChange}
+									minHeight={120}
+								/>
+							)}
 						/>
 					</div>
 

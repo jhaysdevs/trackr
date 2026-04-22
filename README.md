@@ -12,7 +12,8 @@ Internal task tracker for software development teams. Create and triage bugs, fe
 | Server state    | TanStack Query v5                                  |
 | Client/UI state | Zustand v5                                         |
 | Persistence     | localStorage (seed data from `src/data/seed.json`) |
-| Validation      | Zod + React Hook Form                              |
+| Validation      | Zod + React Hook Form v7                           |
+| Rich text       | TipTap v3 (WYSIWYG editor for task/project descriptions) |
 | Charts          | D3                                                 |
 | Icons           | Lucide React                                       |
 
@@ -37,7 +38,7 @@ Open [http://localhost:3000](http://localhost:3000) — root redirects to `/dash
 Sample data loads automatically on first visit. To reset to the original seed data, open the browser console and run:
 
 ```js
-localStorage.removeItem('trackr_v4');
+localStorage.removeItem('trackr_v6');
 location.reload();
 ```
 
@@ -65,18 +66,23 @@ src/
 │   ├── globals.scss
 │   └── layout.tsx
 ├── components/
-│   ├── ui/                   # Primitives: Button, Input, Badge
-│   ├── tasks/                # TaskCard, TaskList, TaskForm
+│   ├── ui/                   # Primitives: Button, Input, Badge, RichTextEditor (TipTap)
+│   ├── tasks/                # TaskCard, TaskList, TaskForm, KanbanBoard, TaskDetailModal
 │   ├── projects/             # ProjectList, ProjectForm
 │   ├── charts/               # DonutChart, HBarChart
 │   └── layout/               # AppShell, Sidebar, Header
 ├── data/
-│   └── seed.json             # Initial tasks and projects
-├── hooks/                    # TanStack Query hooks (useTasks, useProjects, useStats)
+│   └── seed.json             # Initial tasks, projects, and lists
+├── hooks/                    # TanStack Query hooks (useTasks, useProjects, useLists, useStats)
 ├── lib/
-│   ├── api/                  # Promise wrappers over storage (tasks.ts, projects.ts)
-│   ├── storage.ts            # localStorage read/write layer
+│   ├── api/                  # Promise wrappers over storage (tasks.ts, projects.ts, lists.ts)
+│   ├── storage.ts            # localStorage read/write layer (key: trackr_v6)
 │   ├── validations/          # Zod schemas + inferred types
+│   ├── boardSearchParams.ts  # buildBoardUrl() for pre-filtered board links
+│   ├── kanbanLists.ts        # BACKLOG_LIST_ID, isBacklogList()
+│   ├── taskDescriptionTemplates.ts  # Auto-generated task description HTML
+│   ├── taskLabels.ts         # Display-name maps for status/priority/type
+│   ├── taskSearch.ts         # Client-side filter/search logic
 │   └── utils.ts              # cn(), createId(), formatDate(), slugify()
 ├── providers/                # QueryClientProvider
 ├── store/                    # Zustand: ui.store.ts, filters.store.ts
@@ -90,6 +96,9 @@ src/
 projects
   └── tasks (projectId, optional)
         └── tasks (self-ref: parentId for sub-tasks)
+
+lists (Kanban columns)
+  └── tasks (listId, optional — defaults to Backlog list)
 ```
 
 **Task statuses:** `backlog` → `ready` → `in_progress` → `code_review` → `qa_testing` → `resolved` / `closed` / `blocked`
@@ -98,11 +107,21 @@ projects
 
 **Priority levels:** `critical`, `high`, `medium`, `low`
 
+**Kanban lists:** User-created columns with optional WIP limits. The Backlog list (`lst_backlog`) is permanent; deleting any other list moves its tasks to Backlog.
+
 ## State Architecture
 
 Server state (async data) is managed through TanStack Query with key factories in `src/hooks/`. Client/UI state (sidebar, modals) lives in Zustand. Task filters are persisted in `localStorage` via Zustand's `persist` middleware so filter selections survive page refreshes.
 
 All mutations invalidate the relevant TanStack Query cache keys, so lists and stats update automatically after create/edit/delete.
+
+## Rich Text Descriptions
+
+Tasks and projects both have rich-text description fields powered by TipTap v3. Descriptions are stored as HTML strings. The `RichTextEditor` component (`src/components/ui/RichTextEditor/`) handles:
+
+- Toolbar: bold, italic, underline, inline code, code block, H2, bullet list, ordered list, undo/redo
+- Plain-text legacy values are auto-converted to `<p>` HTML on load
+- Used as a controlled component via react-hook-form's `Controller`
 
 ## Todo (future)
 

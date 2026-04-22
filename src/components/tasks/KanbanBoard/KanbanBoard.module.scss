@@ -96,7 +96,6 @@
 }
 
 .filterButton {
-	list-style: none;
 	height: 32px;
 	display: inline-flex;
 	align-items: center;
@@ -110,10 +109,6 @@
 	user-select: none;
 	white-space: nowrap;
 
-	&::-webkit-details-marker {
-		display: none;
-	}
-
 	&::after {
 		content: '';
 		width: 5px;
@@ -126,7 +121,7 @@
 	}
 }
 
-.filterDropdown[open] .filterButton {
+.filterDropdown[data-open='true'] .filterButton {
 	border-color: v.$color-border-focus;
 	box-shadow: 0 0 0 2px v.$color-accent-muted;
 

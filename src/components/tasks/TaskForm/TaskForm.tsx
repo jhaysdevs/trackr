@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -157,27 +157,25 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 			projectId: '',
 			dueDate: '',
 		},
+		// values syncs reactively when task loads in edit mode; keeps dirty edits on background refetch
+		values: task
+			? {
+					title: task.title,
+					description: task.description ?? '',
+					status: task.status,
+					priority: task.priority,
+					type: task.type,
+					projectId: task.projectId ?? '',
+					dueDate: toDateInputValue(task.dueDate),
+				}
+			: undefined,
+		resetOptions: { keepDirtyValues: true },
 	});
-
-	useEffect(() => {
-		if (task) {
-			form.reset({
-				title: task.title,
-				description: task.description ?? '',
-				status: task.status,
-				priority: task.priority,
-				type: task.type,
-				projectId: task.projectId,
-				dueDate: toDateInputValue(task.dueDate),
-			});
-		}
-	}, [task, form]);
 
 	const watchedProjectId = form.watch('projectId');
 	const watchedTitle = form.watch('title');
 	const watchedType = form.watch('type');
 	const debouncedTitle = useDebouncedValue(watchedTitle ?? '', 380);
-	const watchedDescription = form.watch('description') ?? '';
 	const project = projects.find((p) => p.id === watchedProjectId);
 
 	useEffect(() => {
@@ -352,13 +350,13 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 						<label className={styles.label} htmlFor="description">
 							Description
 						</label>
-						<RichTextEditor
-							id="description"
-							value={watchedDescription}
-							onChange={(html) =>
-								form.setValue('description', html, { shouldDirty: true, shouldValidate: true })
-							}
-						/>
+							<Controller
+								control={form.control}
+								name="description"
+								render={({ field }) => (
+									<RichTextEditor id="description" value={field.value ?? ''} onChange={field.onChange} />
+								)}
+							/>
 					</div>
 
 					<div className={styles.grid3}>

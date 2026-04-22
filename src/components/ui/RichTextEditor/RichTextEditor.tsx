@@ -19,6 +19,29 @@ export interface RichTextEditorProps {
 	minHeight?: number;
 }
 
+function normalizeIncomingContent(value: string): string {
+	const trimmed = value.trim();
+	if (!trimmed) return '';
+	// Keep existing rich HTML values as-is.
+	if (/<[a-z][\s\S]*>/i.test(trimmed)) return value;
+
+	// Convert legacy/plain text to minimal rich HTML for TipTap rendering.
+	return trimmed
+		.split(/\n{2,}/)
+		.map((block) =>
+			`<p>${block
+				.split('\n')
+				.map((line) =>
+					line
+						.replace(/&/g, '&amp;')
+						.replace(/</g, '&lt;')
+						.replace(/>/g, '&gt;')
+				)
+				.join('<br>')}</p>`
+		)
+		.join('');
+}
+
 function Toolbar({ editor }: { editor: Editor }) {
 	return (
 		<div className={styles.toolbar}>
@@ -194,9 +217,11 @@ export function RichTextEditor({
 	showToolbar = true,
 	minHeight = 140,
 }: RichTextEditorProps) {
+	const normalizedValue = normalizeIncomingContent(value || '');
+
 	const editor = useEditor({
 		extensions: [StarterKit],
-		content: value,
+		content: normalizedValue,
 		immediatelyRender: false,
 		editable: !disabled,
 		editorProps: {
@@ -218,10 +243,13 @@ export function RichTextEditor({
 	useEffect(() => {
 		if (!editor) return;
 		const currentHtml = editor.getHTML();
-		if (currentHtml !== value) {
-			editor.commands.setContent(value || '', { emitUpdate: false });
+		// '<p></p>' is TipTap's empty-state representation of '' — treat them as equivalent
+		const isEmpty = (h: string) => h === '' || h === '<p></p>';
+		if (isEmpty(currentHtml) && isEmpty(normalizedValue)) return;
+		if (currentHtml !== normalizedValue) {
+			editor.commands.setContent(normalizedValue, { emitUpdate: false });
 		}
-	}, [editor, value]);
+	}, [editor, normalizedValue]);
 
 	const rootStyle: CSSProperties = {
 		'--rte-min-height': `${minHeight}px`,
