@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -145,12 +145,7 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			title: '',
-			description: buildDefaultTaskDescriptionHtml({
-				title: '',
-				type: 'feature',
-				projectName: undefined,
-				relatedTitles: [],
-			}),
+			description: '',
 			status: 'backlog',
 			priority: 'medium',
 			type: 'feature',
@@ -175,6 +170,7 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 	const watchedProjectId = form.watch('projectId');
 	const watchedTitle = form.watch('title');
 	const watchedType = form.watch('type');
+	const watchedDescription = form.watch('description') ?? '';
 	const debouncedTitle = useDebouncedValue(watchedTitle ?? '', 380);
 	const project = projects.find((p) => p.id === watchedProjectId);
 
@@ -211,7 +207,7 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 				status,
 				priority,
 				type,
-				description: data.description,
+				description: data.description ?? form.getValues('description'),
 				projectId: data.projectId || undefined,
 				dueDate,
 				labelIds: [],
@@ -221,7 +217,7 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 		} else {
 			const created = await createMutation.mutateAsync({
 				title: data.title,
-				description: data.description,
+				description: data.description ?? form.getValues('description'),
 				status,
 				priority,
 				type,
@@ -350,13 +346,13 @@ export function TaskForm({ taskId, variant = 'page', onDismiss, onCreated }: Tas
 						<label className={styles.label} htmlFor="description">
 							Description
 						</label>
-							<Controller
-								control={form.control}
-								name="description"
-								render={({ field }) => (
-									<RichTextEditor id="description" value={field.value ?? ''} onChange={field.onChange} />
-								)}
-							/>
+						<RichTextEditor
+							id="description"
+							value={watchedDescription}
+							onChange={(html) =>
+								form.setValue('description', html, { shouldDirty: true, shouldValidate: true })
+							}
+						/>
 					</div>
 
 					<div className={styles.grid3}>

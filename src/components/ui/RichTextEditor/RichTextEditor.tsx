@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, type CSSProperties } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { cn } from '@/lib/utils';
@@ -40,6 +40,10 @@ function normalizeIncomingContent(value: string): string {
 				.join('<br>')}</p>`
 		)
 		.join('');
+}
+
+function isTipTapEmptyDocHtml(html: string): boolean {
+	return html === '' || html === '<p></p>';
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
@@ -218,12 +222,22 @@ export function RichTextEditor({
 	minHeight = 140,
 }: RichTextEditorProps) {
 	const normalizedValue = normalizeIncomingContent(value || '');
+	const acceptEmptyOnUpdateRef = useRef(false);
+	const normalizedPropRef = useRef(normalizedValue);
+	normalizedPropRef.current = normalizedValue;
 
 	const editor = useEditor({
 		extensions: [StarterKit],
 		content: normalizedValue,
 		immediatelyRender: false,
 		editable: !disabled,
+		onCreate: () => {
+			// TipTap can emit an early onUpdate with an empty doc while the editor mounts.
+			// Defer treating an empty doc as authoritative until after mount settles.
+			queueMicrotask(() => {
+				acceptEmptyOnUpdateRef.current = true;
+			});
+		},
 		editorProps: {
 			attributes: {
 				class: styles.editorContent,
@@ -231,7 +245,15 @@ export function RichTextEditor({
 			},
 		},
 		onUpdate: ({ editor: tiptapEditor }) => {
-			onChange(tiptapEditor.getHTML());
+			const html = tiptapEditor.getHTML();
+			if (
+				!acceptEmptyOnUpdateRef.current &&
+				isTipTapEmptyDocHtml(html) &&
+				!isTipTapEmptyDocHtml(normalizedPropRef.current)
+			) {
+				return;
+			}
+			onChange(html);
 		},
 	});
 
@@ -244,7 +266,7 @@ export function RichTextEditor({
 		if (!editor) return;
 		const currentHtml = editor.getHTML();
 		// '<p></p>' is TipTap's empty-state representation of '' — treat them as equivalent
-		const isEmpty = (h: string) => h === '' || h === '<p></p>';
+		const isEmpty = (h: string) => isTipTapEmptyDocHtml(h);
 		if (isEmpty(currentHtml) && isEmpty(normalizedValue)) return;
 		if (currentHtml !== normalizedValue) {
 			editor.commands.setContent(normalizedValue, { emitUpdate: false });
