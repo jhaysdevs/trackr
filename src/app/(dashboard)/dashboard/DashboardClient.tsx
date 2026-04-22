@@ -108,6 +108,17 @@ export function DashboardClient() {
 		[router]
 	);
 
+	const goToBoard = useCallback(() => {
+		router.push('/board');
+	}, [router]);
+
+	const goToBoardColumn = useCallback(
+		(s: TaskStatus) => {
+			router.push(buildBoardUrl({ focusColumn: s }));
+		},
+		[router]
+	);
+
 	const statusSlices = stats
 		? toDonutSlices(stats.byStatus, STATUS_META, Object.keys(STATUS_META) as TaskStatus[])
 		: [];
@@ -133,34 +144,50 @@ export function DashboardClient() {
 				)}
 
 				<section className={styles.execSummaryGrid} aria-label="Workload overview">
-					<div className={cn(styles.kpiTile, styles.kpiTileAccentPipeline)}>
+					<button
+						type="button"
+						className={cn(styles.kpiTile, styles.kpiTileAccentPipeline)}
+						onClick={goToBoard}
+					>
 						<span className={styles.kpiLabel}>Total Tasks</span>
 						<span className={styles.kpiValue}>
 							{isPending ? '—' : (stats?.totals.total ?? 0).toLocaleString()}
 						</span>
 						<span className={styles.kpiHint}>across all projects</span>
-					</div>
-					<div className={cn(styles.kpiTile, styles.kpiTileAccentThroughput)}>
+					</button>
+					<button
+						type="button"
+						className={cn(styles.kpiTile, styles.kpiTileAccentThroughput)}
+						onClick={() => goToBoardColumn('in_progress')}
+					>
 						<span className={styles.kpiLabel}>In Progress</span>
 						<span className={styles.kpiValue}>
 							{isPending ? '—' : (stats?.totals.inProgress ?? 0).toLocaleString()}
 						</span>
 						<span className={styles.kpiHint}>actively being worked</span>
-					</div>
-					<div className={cn(styles.kpiTile, styles.kpiTileAccentRisk)}>
+					</button>
+					<button
+						type="button"
+						className={cn(styles.kpiTile, styles.kpiTileAccentRisk)}
+						onClick={() => goToBoardColumn('blocked')}
+					>
 						<span className={styles.kpiLabel}>Blocked</span>
 						<span className={styles.kpiValue}>
 							{isPending ? '—' : (stats?.totals.blocked ?? 0).toLocaleString()}
 						</span>
 						<span className={styles.kpiHint}>need attention</span>
-					</div>
-					<div className={cn(styles.kpiTile, styles.kpiTileAccentDelivery)}>
+					</button>
+					<button
+						type="button"
+						className={cn(styles.kpiTile, styles.kpiTileAccentDelivery)}
+						onClick={() => goToBoardColumn('closed')}
+					>
 						<span className={styles.kpiLabel}>Closed / Done</span>
 						<span className={styles.kpiValue}>
 							{isPending ? '—' : (stats?.totals.closed ?? 0).toLocaleString()}
 						</span>
 						<span className={styles.kpiHint}>resolved &amp; shipped</span>
-					</div>
+					</button>
 				</section>
 
 				<div className={styles.workflowSplitRow}>

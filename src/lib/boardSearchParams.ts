@@ -40,6 +40,13 @@ export interface BoardFiltersFromUrl {
 	priorities: TaskPriority[];
 	types: TaskType[];
 	statuses: TaskStatus[];
+	/** When set, the board scrolls this column into view (left-aligned in the horizontal scroller). */
+	focusColumn: TaskStatus | null;
+}
+
+/** Default Kanban list id for a workflow status (matches seed `lst_*` ids). */
+export function listIdForTaskStatus(status: TaskStatus): string {
+	return `lst_${status}`;
 }
 
 export function parseBoardSearchParams(searchParams: URLSearchParams): BoardFiltersFromUrl {
@@ -53,7 +60,10 @@ export function parseBoardSearchParams(searchParams: URLSearchParams): BoardFilt
 	const statuses = splitParam(searchParams.get('status')).filter((s): s is TaskStatus =>
 		STATUSES.includes(s as TaskStatus)
 	);
-	return { projectIds, priorities, types, statuses };
+	const columnRaw = searchParams.get('column');
+	const focusColumn =
+		columnRaw && STATUSES.includes(columnRaw as TaskStatus) ? (columnRaw as TaskStatus) : null;
+	return { projectIds, priorities, types, statuses, focusColumn };
 }
 
 export function buildBoardUrl(partial: {
@@ -61,12 +71,14 @@ export function buildBoardUrl(partial: {
 	priorities?: TaskPriority[];
 	types?: TaskType[];
 	statuses?: TaskStatus[];
+	focusColumn?: TaskStatus;
 }): string {
 	const params = new URLSearchParams();
 	if (partial.projectIds?.length) params.set('projects', partial.projectIds.join(','));
 	if (partial.priorities?.length) params.set('priority', partial.priorities.join(','));
 	if (partial.types?.length) params.set('type', partial.types.join(','));
 	if (partial.statuses?.length) params.set('status', partial.statuses.join(','));
+	if (partial.focusColumn) params.set('column', partial.focusColumn);
 	const q = params.toString();
 	return q ? `/board?${q}` : '/board';
 }

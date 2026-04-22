@@ -24,7 +24,11 @@ import { NewTaskModal } from '@/components/tasks/NewTaskModal/NewTaskModal';
 import { DeleteListModal } from '@/components/tasks/DeleteListModal/DeleteListModal';
 import { KanbanListSettingsModal } from '@/components/tasks/KanbanListSettingsModal/KanbanListSettingsModal';
 import { formatDate, cn } from '@/lib/utils';
-import { parseBoardSearchParams, type BoardFiltersFromUrl } from '@/lib/boardSearchParams';
+import {
+	parseBoardSearchParams,
+	listIdForTaskStatus,
+	type BoardFiltersFromUrl,
+} from '@/lib/boardSearchParams';
 import { isBacklogList } from '@/lib/kanbanLists';
 import type { List, Task, TaskPriority, TaskStatus, TaskType } from '@/types';
 import styles from './KanbanBoard.module.scss';
@@ -366,6 +370,8 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 	const [priorityFilters, setPriorityFilters] = useState(initialFilters.priorities);
 	const [typeFilters, setTypeFilters] = useState(initialFilters.types);
 	const [statusFilters, setStatusFilters] = useState(initialFilters.statuses);
+	const focusColumn = initialFilters.focusColumn;
+	const boardScrollRef = useRef<HTMLDivElement>(null);
 	const { data: rawLists = [], isPending: listsLoading } = useLists();
 	const { data: tasksData, isPending: tasksLoading } = useTasks({ pageSize: 10_000 });
 	const { data: projectsData } = useProjects();
@@ -593,6 +599,16 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 
 	const isPending = listsLoading || tasksLoading;
 
+	useEffect(() => {
+		if (isPending || !focusColumn) return;
+		const targetListId = listIdForTaskStatus(focusColumn);
+		if (!lists.some((l) => l.id === targetListId)) return;
+		const board = boardScrollRef.current;
+		const col = board?.querySelector(`[data-list-id="${targetListId}"]`);
+		if (!board || !col) return;
+		(col as HTMLElement).scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+	}, [isPending, lists, focusColumn]);
+
 	const listOpenInSettings = listSettingsListId
 		? lists.find((l) => l.id === listSettingsListId)
 		: undefined;
@@ -651,6 +667,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 
 			{/* Board */}
 			<div
+				ref={boardScrollRef}
 				className={styles.board}
 				onDragLeave={() => { setDragOverListId(null); setDragOverColumnId(null); setTaskDropIndicator(null); }}
 			>
@@ -664,6 +681,7 @@ function KanbanBoardInner({ initialFilters }: { initialFilters: BoardFiltersFrom
 							return (
 								<div
 									key={list.id}
+									data-list-id={list.id}
 									className={cn(
 										styles.column,
 										dragOverColumnId === list.id && styles.columnTaskDragOver,
