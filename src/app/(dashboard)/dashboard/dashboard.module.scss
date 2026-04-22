@@ -218,6 +218,18 @@
 	@include m.respond-to("lg") {
 		grid-template-columns: 1fr 1fr;
 	}
+
+	// Narrow phones: scale the stacked chart row with the viewport
+	@media (max-width: 459px) {
+		gap: 3.25vw;
+
+		.distributionPanel {
+			padding: 3.5vw 4vw;
+			gap: 3.25vw;
+			// Floor for chart hit targets; preferred size tracks viewport width
+			min-height: clamp(12.5rem, 58vw, 17.5rem);
+		}
+	}
 }
 
 .distributionPanel {

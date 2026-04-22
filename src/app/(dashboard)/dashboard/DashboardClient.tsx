@@ -64,18 +64,21 @@ function toDonutSlices<K extends string>(
 	}));
 }
 
+/** Bar rows for types with at least one task — omits empty categories (e.g. no Refactor row). */
 function toBarData<K extends string>(
 	buckets: StatsBucket[],
 	meta: Record<K, { label: string; color: string }>,
 	order: K[]
 ): BarDatum[] {
 	const map = Object.fromEntries(buckets.map((b) => [b.key, b.count]));
-	return order.map((key) => ({
-		id: key,
-		label: meta[key].label,
-		value: map[key] ?? 0,
-		color: meta[key].color,
-	}));
+	return order
+		.map((key) => ({
+			id: key,
+			label: meta[key].label,
+			value: map[key] ?? 0,
+			color: meta[key].color,
+		}))
+		.filter((row) => row.value > 0);
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────

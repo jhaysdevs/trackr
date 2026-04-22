@@ -10,10 +10,21 @@
 
 .chartRow {
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 	gap: v.$space-6;
 	flex: 1;
 	min-height: 0;
+
+	@media (max-width: 466px) {
+		flex-direction: column;
+		align-items: stretch;
+		gap: v.$space-4;
+
+		.svgWrap {
+			align-self: center;
+		}
+	}
 }
 
 .svgWrap {
