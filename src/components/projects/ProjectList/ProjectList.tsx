@@ -5,6 +5,7 @@ import { Plus, Folder } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
 import { useTasks } from '@/hooks/useTasks';
 import { Button } from '@/components/ui/Button/Button';
+import { buildBoardUrl } from '@/lib/boardSearchParams';
 import type { Project } from '@/types';
 import styles from './ProjectList.module.scss';
 
@@ -24,7 +25,7 @@ function ProjectCard({ project, taskCount }: ProjectCardProps) {
 	return (
 		<button
 			className={styles.card}
-			onClick={() => router.push(`/projects/${project.id}`)}
+			onClick={() => router.push(buildBoardUrl({ projectIds: [project.id] }))}
 			data-status={project.status}
 		>
 			<div className={styles.cardIcon}>

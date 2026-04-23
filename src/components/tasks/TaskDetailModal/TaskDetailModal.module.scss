@@ -15,7 +15,7 @@
 .dialog {
 	display: flex;
 	flex-direction: column;
-	width: 100%;
+	width: auto;
 	max-width: v.$content-max-width;
 	max-height: min(92vh, 900px);
 	overflow: hidden;
